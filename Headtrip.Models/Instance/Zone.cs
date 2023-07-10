@@ -10,8 +10,6 @@ namespace Headtrip.Models.Instance
     {
         public string ZoneName { get; set; } = null!; // The name of the zone, this field is UNIQUE
         public string LevelName { get; set; } = null!; // The name of the level that needs to be passed to the unreal engine instance
-        public int MinimumRecommendedLevel { get; set; }
-        public int MaximumRecommendedLevel { get; set; }
 
 
     }

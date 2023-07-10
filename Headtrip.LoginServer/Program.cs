@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Headtrip.LoginServer.Data;
+using Headtrip.LoginServer.Areas.Identity.Data;
 
 namespace Headtrip.LoginServer
 {
@@ -6,6 +10,11 @@ namespace Headtrip.LoginServer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var connectionString = builder.Configuration.GetConnectionString("HeadtripLoginServerContextConnection") ?? throw new InvalidOperationException("Connection string 'HeadtripLoginServerContextConnection' not found.");
+
+            builder.Services.AddDbContext<HeadtripLoginServerContext>(options => options.UseSqlServer(connectionString));
+
+            builder.Services.AddDefaultIdentity<HeadtripLoginServerUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<HeadtripLoginServerContext>();
 
             // Add services to the container.
 
