@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Headtrip.Models\Headtrip.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\DungeonInstance\" />
+  </ItemGroup>
+
 </Project>

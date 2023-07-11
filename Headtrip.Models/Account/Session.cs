@@ -10,8 +10,9 @@ namespace Headtrip.Models.Account
     {
         public Guid SessionId { get; set; }
         public Guid AccountId { get; set; }
-        public Guid SelectedCharacterId { get; set; }
-
+        public Guid? CharacterId { get; set; }
+        public Guid? PartyId { get; set; }
+        public int? PartySlot { get; set; }
 
     }
 }

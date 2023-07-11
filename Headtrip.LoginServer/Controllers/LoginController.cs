@@ -11,7 +11,7 @@ namespace Headtrip.LoginServer.Controllers
     public class LoginController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-
+        private readonly 
 
         public LoginController(UserManager<IdentityUser> userManager)
         {
@@ -38,8 +38,14 @@ namespace Headtrip.LoginServer.Controllers
             return Ok();
         }
 
+        [HttpPost("BearerToken")]
+        public async Task<ActionResult<AuthenticationResponse>> CreateBearerToken(AuthenticationRequest)
+
         // TODO: Need to create jwt authentication method
         // TODO: That method needs to generate a session ID for the game server
         // TODO: That session is valid until the player logs out
+        // TODO: If a player doesn't log out (possible if disconnected0, session gets closed after 5 minutes of inactivity
+        // TOOD: If a player logs back in, and a session already exists for them, assign them that session
+
     }
 }

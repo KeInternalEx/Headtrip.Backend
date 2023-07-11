@@ -1,9 +1,11 @@
-﻿namespace Headtrip.GameServer.Models.OverworldInstance
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Headtrip.GameServer.Models.OverworldInstance
 {
     public class TravelToZoneParameters
     {
-        public Guid SessionId { get; set; }
 
+        [Required]
         public string ZoneName { get; set; } = null!;
 
         public double PlayerCoordsX;

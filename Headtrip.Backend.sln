@@ -3,17 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.Models", "Headtrip.Models\Headtrip.Models.csproj", "{23676431-1F46-44CF-B5F4-B46A9611E058}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Models", "Headtrip.Models\Headtrip.Models.csproj", "{23676431-1F46-44CF-B5F4-B46A9611E058}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.Repositories", "Headtrip.Repositories\Headtrip.Repositories.csproj", "{FA4EB427-CE76-4DB1-BB34-2F841412130D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Repositories", "Headtrip.Repositories\Headtrip.Repositories.csproj", "{FA4EB427-CE76-4DB1-BB34-2F841412130D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.Services", "Headtrip.Services\Headtrip.Services.csproj", "{C53806C0-C0E0-4355-857D-43EF033F3EC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Services", "Headtrip.Services\Headtrip.Services.csproj", "{C53806C0-C0E0-4355-857D-43EF033F3EC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.GameServer", "Headtrip.GameServer\Headtrip.GameServer.csproj", "{1633E70E-F265-4E37-9E17-0D38DBFB32CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.GameServer", "Headtrip.GameServer\Headtrip.GameServer.csproj", "{1633E70E-F265-4E37-9E17-0D38DBFB32CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.Utilities", "Headtrip.Utilities\Headtrip.Utilities.csproj", "{B72CC52D-332E-4E59-B700-19DF998D98F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Utilities", "Headtrip.Utilities\Headtrip.Utilities.csproj", "{B72CC52D-332E-4E59-B700-19DF998D98F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.LoginServer", "Headtrip.LoginServer\Headtrip.LoginServer.csproj", "{A53D2A07-5323-41D2-872A-24FA6423E03F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.LoginServer", "Headtrip.LoginServer\Headtrip.LoginServer.csproj", "{A53D2A07-5323-41D2-872A-24FA6423E03F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.GameServerContext", "Headtrip.GameServerContext\Headtrip.GameServerContext.csproj", "{4C694979-399A-4CB9-A005-6CA065D6C3CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.Secrets", "Headtrip.Secrets\Headtrip.Secrets.csproj", "{7D99A3BB-7D11-4942-B32F-7903A46B9173}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

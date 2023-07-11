@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Headtrip.Models\Headtrip.Models.csproj" />
-    <ProjectReference Include="..\Headtrip.Utilities\Headtrip.Utilities.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="7.0.7" />
   </ItemGroup>
 
 </Project>
