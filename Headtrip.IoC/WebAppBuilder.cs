@@ -19,6 +19,11 @@ namespace Headtrip.WebApiInitialization
 {
     public static class WebAppBuilder
     {
+        public static string JWT_SCHEME_NAME = "JWT";
+        public static string UNREAL_DAEMON_SCHEME_NAME = "API_KEY_UNREAL_DAEMON";
+        public static string UNREAL_GAMESERVER_SCHEME_NAME = "API_KEY_UNREAL_GAME_SERVER";
+
+
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<IContext<HeadtripGameServerContext>, HeadtripGameServerContext>();
@@ -62,11 +67,18 @@ namespace Headtrip.WebApiInitialization
             builder.Services.AddControllers();
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultScheme = "JWT";
+                options.DefaultScheme = JWT_SCHEME_NAME;
                 options.RequireAuthenticatedSignIn = false;
-            }).AddScheme<JwtAuthenticationOptions, JwtAuthenticationHandler>("JWT", options =>
-            {
-                options.SchemeName = "JWT";
+            })
+            .AddScheme<JwtAuthenticationOptions, JwtAuthenticationHandler>(JWT_SCHEME_NAME, options => { options.SchemeName = JWT_SCHEME_NAME; })
+            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(UNREAL_DAEMON_SCHEME_NAME, options => {
+                options.SchemeName = UNREAL_DAEMON_SCHEME_NAME;
+                options.KeyName = "UnrealDaemonApiKey";
+            })
+            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(UNREAL_GAMESERVER_SCHEME_NAME, options => {
+                options.SchemeName = UNREAL_GAMESERVER_SCHEME_NAME;
+                options.JwtSchemeName = JWT_SCHEME_NAME;
+                options.KeyName = "UnrealGameServerApiKey";
             });
 
 

@@ -81,17 +81,7 @@ namespace Headtrip.Secrets
             }
         }
 
-        public static string JwtHeaderName
-        {
-            get
-            {
-                var result = _JwtSection["Jwt:HeaderName"];
-                if (result == null)
-                    throw new Exception("JWT CONFIGURATION MISSING HEADER NAME");
-
-                return result;
-            }
-        }
+        public static string JwtHeaderName { get; private set; } = "ht-user-jwt";
 
     }
 }
