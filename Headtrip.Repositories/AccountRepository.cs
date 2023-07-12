@@ -35,6 +35,13 @@ namespace Headtrip.Repositories
                 throw new Exception("Account creation failed, no entries inserted");
         }
 
+        public async Task<Account> GetAccountByUserId(Guid userId)
+        {
+            return await _Context.Connection.QueryFirstOrDefaultAsync<Account>(
+                sql: "[Account_GetAccountByUserId]",
+                param: userId,
+                commandType: CommandType.StoredProcedure);
+        }
     }
 
 }

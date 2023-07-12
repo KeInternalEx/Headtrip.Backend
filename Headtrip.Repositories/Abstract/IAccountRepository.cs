@@ -13,6 +13,8 @@ namespace Headtrip.Repositories.Abstract
         Task CreateAccount(Account account);
 
 
+        Task<Account> GetAccountByUserId(Guid userId);
+
 
     }
 }

@@ -25,20 +25,26 @@ namespace Headtrip.Services
 
         private readonly ILogging<HeadtripLoginServerContext> _logging;
         private readonly IAccountRepository _accountRepository;
+        private readonly IGameSessionRepository _gameSessionRepository;
         private readonly IUserRepository _userRepository;
 
-        private readonly IUnitOfWork<HeadtripLoginServerContext> _unitOfWork;
+        private readonly IUnitOfWork<HeadtripLoginServerContext> _lsUnitOfWork;
+        private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;
 
         public AuthenticationService(
             ILogging<HeadtripLoginServerContext> logging,
             IAccountRepository accountRepository,
+            IGameSessionRepository gameSessionRepository,
             IUserRepository userRepository,
-            IUnitOfWork<HeadtripLoginServerContext> unitOfWork)
+            IUnitOfWork<HeadtripLoginServerContext> lsUnitOfWork,
+            IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork)
         {
             _logging = logging;
             _accountRepository = accountRepository;
+            _gameSessionRepository = gameSessionRepository;
             _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
+            _lsUnitOfWork = lsUnitOfWork;
+            _gsUnitOfWork = gsUnitOfWork;
         }
 
 
@@ -129,8 +135,41 @@ namespace Headtrip.Services
                 var expiration = DateTime.UtcNow.AddDays(EXPIRATION_DAYS_GAMESERVER);
                 var claims = createDefaultClaims(user);
 
-                // TODO: GET ACCOUNT ID, GET/CREATE SESSION ID
-                // TODO: APPEND GAME SERVER CLAIMS
+
+                var account = await _accountRepository.GetAccountByUserId(user.UserId);
+                if (account == null)
+                {
+                    _logging.LogWarning($"No game server account exists for user {user.Username}");
+
+                    return new AuthenticationResult
+                    {
+                        IsSuccessful = false,
+                        Status = $"No game server account exists for user {user.Username}",
+                    };
+                }
+
+
+
+                _gsUnitOfWork.BeginTransaction();
+
+                var session = await _gameSessionRepository.GetOrCreateGameSession(account.AccountId);
+                if (session == null)
+                {
+                    _logging.LogWarning($"Unable to query or create a session ID for user {user.Username}. This should never happen.");
+
+                    return new AuthenticationResult
+                    {
+                        IsSuccessful = false,
+                        Status = $"Unable to query or create a session ID for user {user.Username}. This should never happen."
+                    };
+                }
+
+                _gsUnitOfWork.CommitTransaction();
+
+
+                claims.Add(new Claim("GsAccountId", account.AccountId.ToString()));
+                claims.Add(new Claim("GsSessionId", session.GameSessionId.ToString()));
+
 
                 return CreateAuthenticationToken(claims, expiration);
             }

@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Models.Account
+namespace Headtrip.Models.GameSession
 {
-    public class Session : DatabaseObject
+    public class GameSession : DatabaseObject
     {
-        public Guid SessionId { get; set; }
+        public Guid GameSessionId { get; set; }
         public Guid AccountId { get; set; }
         public Guid? CharacterId { get; set; }
         public Guid? PartyId { get; set; }

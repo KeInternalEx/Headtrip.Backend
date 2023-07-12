@@ -63,7 +63,6 @@ namespace Headtrip.Repositories
                 {
                     UserId = userId
                 },
-                transaction: _context.Transaction,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -75,7 +74,6 @@ namespace Headtrip.Repositories
                 {
                     Username = username
                 },
-                transaction: _context.Transaction,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -87,7 +85,6 @@ namespace Headtrip.Repositories
                 {
                     Email = email
                 },
-                transaction: _context.Transaction,
                 commandType: CommandType.StoredProcedure);
         }
 
