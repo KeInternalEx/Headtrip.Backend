@@ -38,9 +38,10 @@ namespace Headtrip.WebApiInitialization
                     AuthenticationHandlerUtilities.GetAuthenticationHeader(Request, JwtConfiguration.JwtHeaderName, Options.JwtSchemeName, out var jwtAuthHeader) &&
                     jwtAuthHeader != null)
                 {
-                    // We have a JWT, if it's invalid at this point we need to signal a failure because that means that
+                    // We have a JWT, if it's invalid at this point we need to signal a failure because that means
                     // The client passed the UnrealGameServer an invalid JWT
-                    // Which means that the UnrealGameServer needs to know that it's invalid and disconnect the client
+                    // Which means that the UnrealGameServer needs to know that it's invalid and disconnect the client for either playing for too long (potential bot)
+                    // Or for being a stinky cheater and trying use someone else's jwt or modify their own
 
                     var tokenValidationResult = await JwtAuthenticationHandler.ValidateJwt(jwtAuthHeader);
                     if (tokenValidationResult.IsValid)
