@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.LoginServerContext
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.TestRestApi", "Headtrip.TestRestApi\Headtrip.TestRestApi.csproj", "{8AF34007-0FD5-4E74-8C26-41DBDACBFFDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.IoC", "Headtrip.IoC\Headtrip.IoC.csproj", "{2160C5FE-2FE3-4D90-83CE-686EF523E7E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.WebApiInitialization", "Headtrip.IoC\Headtrip.WebApiInitialization.csproj", "{2160C5FE-2FE3-4D90-83CE-686EF523E7E6}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Headtrip.Website", "Headtrip.Website\Headtrip.Website.esproj", "{B0D0DFC7-B878-40F2-A7A1-6C7EF68E83FA}"
 EndProject
