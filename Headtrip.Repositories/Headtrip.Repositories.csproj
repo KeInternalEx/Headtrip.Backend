@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.143" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Headtrip.GameServerContext\Headtrip.GameServerContext.csproj" />
+    <ProjectReference Include="..\Headtrip.LoginServerContext\Headtrip.LoginServerContext.csproj" />
     <ProjectReference Include="..\Headtrip.Models\Headtrip.Models.csproj" />
     <ProjectReference Include="..\Headtrip.Utilities\Headtrip.Utilities.csproj" />
   </ItemGroup>

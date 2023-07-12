@@ -10,7 +10,7 @@ namespace Headtrip.Repositories.Abstract
     public interface IAccountRepository
     {
 
-
+        Task CreateAccount(Account account);
 
 
 

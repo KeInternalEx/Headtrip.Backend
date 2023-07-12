@@ -1,7 +1,8 @@
 ﻿using Headtrip.LoginServer.Models;
-using Headtrip.Models.Account;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Headtrip.LoginServerContext;
+using Headtrip.Models.User;
+using Headtrip.Services.Abstract;
+using Headtrip.Utilities.Abstract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Headtrip.LoginServer.Controllers
@@ -10,42 +11,235 @@ namespace Headtrip.LoginServer.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly 
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IUserService _userService;
+        private readonly IAccountService _accountService;
 
-        public LoginController(UserManager<IdentityUser> userManager)
+        private readonly IEmailSender _emailSender;
+        private readonly ILogging<HeadtripLoginServerContext> _logging;
+
+        public LoginController(
+            IAuthenticationService authenticationService,
+            IUserService userService,
+            IAccountService accountService,
+            IEmailSender emailSender,
+            ILogging<HeadtripLoginServerContext> logging)
         {
-            _userManager = userManager;
+            _authenticationService = authenticationService;
+            _userService = userService;
+            _accountService = accountService;
+            _emailSender = emailSender;
+            _logging = logging;
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<Account>> CreateAccount(CreateUserModel userModel)
+        public async Task<ActionResult> ConfirmEmail(
+            [FromBody] ConfirmEmailParameters confirmEmailParameters)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(confirmEmailParameters.Parameter))
+                    return BadRequest();
 
-            var result = await _userManager.CreateAsync(
-                new IdentityUser() { UserName = userModel.UserName, Email = userModel.Email },
-                userModel.Password);
+                var decryptionResult = _userService.GetUserIdFromEmailConfirmationParameter(confirmEmailParameters.Parameter);
+                var result = await _userService.ConfirmEmailAndCreateAccount(decryptionResult.UserId);
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                if (result.IsSuccessful && result.Account != null)
+                {
+                    _logging.LogInfo($"Email confirmed for UserId {decryptionResult.UserId} - AccountId {result.Account.AccountId}");
 
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+            }
 
-            // TODO: Need to send confirmation email
-
-            return Ok();
+            return StatusCode(500);
         }
 
-        [HttpPost("BearerToken")]
-        public async Task<ActionResult<AuthenticationResponse>> CreateBearerToken(AuthenticationRequest)
 
-        // TODO: Need to create jwt authentication method
-        // TODO: That method needs to generate a session ID for the game server
-        // TODO: That session is valid until the player logs out
-        // TODO: If a player doesn't log out (possible if disconnected0, session gets closed after 5 minutes of inactivity
-        // TOOD: If a player logs back in, and a session already exists for them, assign them that session
+        [HttpPost]
+        public async Task<ActionResult> CreateUser(
+            [FromBody] CreateUserParameters createUserParameters)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(createUserParameters.Username) ||
+                    string.IsNullOrWhiteSpace(createUserParameters.Password) ||
+                    string.IsNullOrWhiteSpace(createUserParameters.Email))
+                {
+                    return BadRequest();
+                }
+
+
+                var result = await _userService.CreateUser(
+                    createUserParameters.Username,
+                    createUserParameters.Email,
+                    createUserParameters.Password);
+
+                if (result.IsSuccessful)
+                {
+
+                    var emailConfirmationUrl = $"https://{HttpContext.Request.Host}/emailconfirmation?p={result.EmailConfirmationParameter}";
+
+                    await _emailSender.SendEmail(new EmailObject
+                    {
+
+                    });
+
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+            }
+
+            return StatusCode(500);
+        }
+
+
+
+        [HttpPost]
+        public async Task<ActionResult<LoginUserResult>> LoginUserByUsername(
+            [FromBody] LoginUserParameters loginUserParameters)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(loginUserParameters.Username) ||
+                    string.IsNullOrWhiteSpace(loginUserParameters.Password))
+                {
+                    return BadRequest(new LoginUserResult
+                    {
+                        Status = "Username and Password fields are REQUIRED"
+                    });
+                }
+
+                var authenticationResult = await _authenticationService.AuthenticateUserByUsername(loginUserParameters.Username, loginUserParameters.Password);
+                if (authenticationResult.IsSuccessful)
+                {
+                    return Ok(new LoginUserResult
+                    {
+                        Token = authenticationResult.Token,
+                        Expiration = authenticationResult.Expiration,
+                        Status = string.Empty
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+            }
+
+            return StatusCode(500);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<LoginUserResult>> LoginUserByEmail(
+            [FromBody] LoginUserParameters loginUserParameters)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(loginUserParameters.Username) ||
+                    string.IsNullOrWhiteSpace(loginUserParameters.Password))
+                {
+                    return BadRequest(new LoginUserResult
+                    {
+                        Status = "Username and Password fields are REQUIRED"
+                    });
+                }
+
+                var authenticationResult = await _authenticationService.AuthenticateUserByEmail(loginUserParameters.Username, loginUserParameters.Password);
+                if (authenticationResult.IsSuccessful)
+                {
+                    return Ok(new LoginUserResult
+                    {
+                        Token = authenticationResult.Token,
+                        Expiration = authenticationResult.Expiration,
+                        Status = string.Empty
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+            }
+
+            return StatusCode(500);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<LoginUserResult>> GsLoginUserByUsername(
+            [FromBody] LoginUserParameters loginUserParameters)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(loginUserParameters.Username) ||
+                    string.IsNullOrWhiteSpace(loginUserParameters.Password))
+                {
+                    return BadRequest(new LoginUserResult
+                    {
+                        Status = "Username and Password fields are REQUIRED"
+                    });
+                }
+
+                var authenticationResult = await _authenticationService.AuthenticateUserByUsernameForGameServer(loginUserParameters.Username, loginUserParameters.Password);
+                if (authenticationResult.IsSuccessful)
+                {
+                    return Ok(new LoginUserResult
+                    {
+                        Token = authenticationResult.Token,
+                        Expiration = authenticationResult.Expiration,
+                        Status = string.Empty
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+            }
+
+            return StatusCode(500);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<LoginUserResult>> GsLoginUserByEmail(
+            [FromBody] LoginUserParameters loginUserParameters)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(loginUserParameters.Username) ||
+                    string.IsNullOrWhiteSpace(loginUserParameters.Password))
+                {
+                    return BadRequest(new LoginUserResult
+                    {
+                        Status = "Username and Password fields are REQUIRED"
+                    });
+                }
+
+                var authenticationResult = await _authenticationService.AuthenticateUserByEmailForGameServer(loginUserParameters.Username, loginUserParameters.Password);
+                if (authenticationResult.IsSuccessful)
+                {
+                    return Ok(new LoginUserResult
+                    {
+                        Token = authenticationResult.Token,
+                        Expiration = authenticationResult.Expiration,
+                        Status = string.Empty
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+            }
+
+            return StatusCode(500);
+        }
+
+        
 
     }
 }

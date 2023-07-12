@@ -9,7 +9,6 @@ namespace Headtrip.Utilities
 
         public UnitOfWork(IContext<T> Context) => _Context = Context;
 
-
         public void BeginTransaction() => _Context.BeginTransaction();
         public void CommitTransaction() => _Context.CommitTransaction();
         public void Dispose() => _Context.Dispose();
@@ -32,8 +31,18 @@ namespace Headtrip.Utilities
 
         public void BeginTransaction()
         {
-            _ContextA.BeginTransaction();
-            _ContextB.BeginTransaction();
+            try
+            {
+                _ContextA.BeginTransaction();
+                _ContextB.BeginTransaction();
+            }
+            catch (Exception)
+            {
+                _ContextA.RollbackTransaction();
+                _ContextB.RollbackTransaction();
+
+                throw;
+            }
         }
 
         public void CommitTransaction()
@@ -41,12 +50,11 @@ namespace Headtrip.Utilities
             if (_ContextA.Connection.State == ConnectionState.Open &&
                 _ContextB.Connection.State == ConnectionState.Open)
             {
-
                 _ContextA.CommitTransaction();
                 _ContextB.CommitTransaction();
             }
             else
-                throw new Exception("One or more sockets were closed, unable to commit transaction. {A2FE4DF5-7B31-412A-95F2-AF805BA469CA}");
+                throw new Exception("One or more sockets were closed, unable to commit transaction.");
         }
 
         public void Dispose()
@@ -64,7 +72,7 @@ namespace Headtrip.Utilities
                 _ContextB.RollbackTransaction();
             }
             else
-                throw new Exception("One or more sockets were closed, unable to roll back transaction. {0989DC62-78BA-4865-8A8B-061B0F8F1EBB}");
+                throw new Exception("One or more sockets were closed, unable to roll back transaction.");
         }
 
 
