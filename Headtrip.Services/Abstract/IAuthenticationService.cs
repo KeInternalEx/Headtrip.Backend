@@ -11,10 +11,10 @@ namespace Headtrip.Services.Abstract
 {
     public interface IAuthenticationService
     {
-        Task<AuthenticationResult> AuthenticateUserByUsername(string username, string password);
-        Task<AuthenticationResult> AuthenticateUserByEmail(string email, string password);
-        Task<AuthenticationResult> AuthenticateUserByUsernameForGameServer(string username, string password);
-        Task<AuthenticationResult> AuthenticateUserByEmailForGameServer(string email, string password);
+        Task<LoginResult> LoginUserByUsername(string username, string password);
+        Task<LoginResult> LoginUserByEmail(string email, string password);
+        Task<LoginResult> LoginUserByUsernameForGameServer(string username, string password);
+        Task<LoginResult> LoginUserByEmailForGameServer(string email, string password);
 
         
     }

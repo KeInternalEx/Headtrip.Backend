@@ -8,9 +8,10 @@ using Headtrip.Repositories.Abstract;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+
 using System.Security.Claims;
 using System.Text;
 
@@ -52,7 +53,7 @@ namespace Headtrip.Services
         {
             return new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, GameServerJwtConfiguration.JwtSubject),
+                new Claim(JwtRegisteredClaimNames.Sub, JwtConfiguration.JwtSubject),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Nonce
                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
@@ -60,21 +61,21 @@ namespace Headtrip.Services
         }
 
    
-        private AuthenticationResult CreateAuthenticationToken(
+        private LoginResult CreateAuthenticationToken(
             IEnumerable<Claim> claims,
             DateTime expiration)
         {
 
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(GameServerJwtConfiguration.JwtSigningKey)
+                    Encoding.UTF8.GetBytes(JwtConfiguration.JwtSigningKey)
                 ),
                 SecurityAlgorithms.HmacSha256Signature
             );
 
             var encryptingCredentials = new EncryptingCredentials(
                 new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(GameServerJwtConfiguration.JwtEncryptionKey)
+                    Encoding.UTF8.GetBytes(JwtConfiguration.JwtEncryptionKey)
                 ),
                 SecurityAlgorithms.Aes128Encryption
             );
@@ -84,8 +85,8 @@ namespace Headtrip.Services
    
 
             var token = tokenHandler.CreateJwtSecurityToken(
-                GameServerJwtConfiguration.JwtIssuer,
-                GameServerJwtConfiguration.JwtAudience,
+                JwtConfiguration.JwtIssuer,
+                JwtConfiguration.JwtAudience,
                 claimsIdentity,
                 DateTime.UtcNow,
                 expiration,
@@ -94,7 +95,7 @@ namespace Headtrip.Services
                 encryptingCredentials);
 
 
-            return new AuthenticationResult
+            return new LoginResult
             {
                 IsSuccessful = true,
                 Status = string.Empty,
@@ -105,7 +106,7 @@ namespace Headtrip.Services
 
         }
 
-        private AuthenticationResult AuthenticateUser(
+        private LoginResult LoginUser(
             User user,
             string password)
         {
@@ -124,7 +125,7 @@ namespace Headtrip.Services
         }
 
 
-        private async Task<AuthenticationResult> AuthenticateUserForGameServer(
+        private async Task<LoginResult> LoginUserForGameServer(
             User user,
             string password)
         {
@@ -141,7 +142,7 @@ namespace Headtrip.Services
                 {
                     _logging.LogWarning($"No game server account exists for user {user.Username}");
 
-                    return new AuthenticationResult
+                    return new LoginResult
                     {
                         IsSuccessful = false,
                         Status = $"No game server account exists for user {user.Username}",
@@ -155,12 +156,12 @@ namespace Headtrip.Services
                 var session = await _gameSessionRepository.GetOrCreateGameSession(account.AccountId);
                 if (session == null)
                 {
-                    _logging.LogWarning($"Unable to query or create a session ID for user {user.Username}. This should never happen.");
+                    _logging.LogWarning($"Unable to query or create a game session ID for user {user.Username}.");
 
-                    return new AuthenticationResult
+                    return new LoginResult
                     {
                         IsSuccessful = false,
-                        Status = $"Unable to query or create a session ID for user {user.Username}. This should never happen."
+                        Status = $"Unable to query or create a game session ID for user {user.Username}."
                     };
                 }
 
@@ -178,7 +179,7 @@ namespace Headtrip.Services
             throw new Exception($"Game Server Authentication failed for user {user.Username}");
         }
 
-        public async Task<AuthenticationResult> AuthenticateUserByUsername(
+        public async Task<LoginResult> LoginUserByUsername(
             string username,
             string password)
         {
@@ -186,18 +187,18 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByUsername(username);
                 if (user == null)
-                    return new AuthenticationResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
+                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
 
-                return AuthenticateUser(user, password);
+                return LoginUser(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<AuthenticationResult>(ex);
+                return ServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 
-        public async Task<AuthenticationResult> AuthenticateUserByEmail(
+        public async Task<LoginResult> LoginUserByEmail(
             string email,
             string password)
         {
@@ -205,19 +206,19 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByEmail(email);
                 if (user == null)
-                    return new AuthenticationResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
+                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
 
-                return AuthenticateUser(user, password);
+                return LoginUser(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<AuthenticationResult>(ex);
+                return ServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 
 
-        public async Task<AuthenticationResult> AuthenticateUserByUsernameForGameServer(
+        public async Task<LoginResult> LoginUserByUsernameForGameServer(
             string username,
             string password)
         {
@@ -225,18 +226,18 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByUsername(username);
                 if (user == null)
-                    return new AuthenticationResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
+                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
 
-                return await AuthenticateUserForGameServer(user, password);
+                return await LoginUserForGameServer(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<AuthenticationResult>(ex);
+                return ServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 
-        public async Task<AuthenticationResult> AuthenticateUserByEmailForGameServer(
+        public async Task<LoginResult> LoginUserByEmailForGameServer(
             string email,
             string password)
         {
@@ -244,14 +245,14 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByEmail(email);
                 if (user == null)
-                    return new AuthenticationResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
+                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
 
-                return await AuthenticateUserForGameServer(user, password);
+                return await LoginUserForGameServer(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<AuthenticationResult>(ex);
+                return ServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 

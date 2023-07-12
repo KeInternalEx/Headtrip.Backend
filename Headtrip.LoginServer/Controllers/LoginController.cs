@@ -118,7 +118,7 @@ namespace Headtrip.LoginServer.Controllers
                     });
                 }
 
-                var authenticationResult = await _authenticationService.AuthenticateUserByUsername(loginUserParameters.Username, loginUserParameters.Password);
+                var authenticationResult = await _authenticationService.LoginUserByUsername(loginUserParameters.Username, loginUserParameters.Password);
                 if (authenticationResult.IsSuccessful)
                 {
                     return Ok(new LoginUserResult
@@ -152,7 +152,7 @@ namespace Headtrip.LoginServer.Controllers
                     });
                 }
 
-                var authenticationResult = await _authenticationService.AuthenticateUserByEmail(loginUserParameters.Username, loginUserParameters.Password);
+                var authenticationResult = await _authenticationService.LoginUserByEmail(loginUserParameters.Username, loginUserParameters.Password);
                 if (authenticationResult.IsSuccessful)
                 {
                     return Ok(new LoginUserResult
@@ -186,7 +186,7 @@ namespace Headtrip.LoginServer.Controllers
                     });
                 }
 
-                var authenticationResult = await _authenticationService.AuthenticateUserByUsernameForGameServer(loginUserParameters.Username, loginUserParameters.Password);
+                var authenticationResult = await _authenticationService.LoginUserByUsernameForGameServer(loginUserParameters.Username, loginUserParameters.Password);
                 if (authenticationResult.IsSuccessful)
                 {
                     return Ok(new LoginUserResult
@@ -220,7 +220,7 @@ namespace Headtrip.LoginServer.Controllers
                     });
                 }
 
-                var authenticationResult = await _authenticationService.AuthenticateUserByEmailForGameServer(loginUserParameters.Username, loginUserParameters.Password);
+                var authenticationResult = await _authenticationService.LoginUserByEmailForGameServer(loginUserParameters.Username, loginUserParameters.Password);
                 if (authenticationResult.IsSuccessful)
                 {
                     return Ok(new LoginUserResult

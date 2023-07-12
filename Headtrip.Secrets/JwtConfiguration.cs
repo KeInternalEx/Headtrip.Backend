@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Secrets
 {
-    public class GameServerJwtConfiguration
+    public class JwtConfiguration
     {
         private static NameValueCollection _JwtSection { 
             get
@@ -76,6 +76,18 @@ namespace Headtrip.Secrets
                 var result = _JwtSection["Jwt:EncryptionKey"];
                 if (result == null)
                     throw new Exception("JWT CONFIGURATION MISSING ENCRYPTION KEY");
+
+                return result;
+            }
+        }
+
+        public static string JwtHeaderName
+        {
+            get
+            {
+                var result = _JwtSection["Jwt:HeaderName"];
+                if (result == null)
+                    throw new Exception("JWT CONFIGURATION MISSING HEADER NAME");
 
                 return result;
             }

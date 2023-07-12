@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Headtrip.GameServerContext\Headtrip.GameServerContext.csproj" />
-    <ProjectReference Include="..\Headtrip.IoC\Headtrip.IoC.csproj" />
+    <ProjectReference Include="..\Headtrip.IoC\Headtrip.WebApiInitialization.csproj" />
     <ProjectReference Include="..\Headtrip.LoginServerContext\Headtrip.LoginServerContext.csproj" />
     <ProjectReference Include="..\Headtrip.Models\Headtrip.Models.csproj" />
     <ProjectReference Include="..\Headtrip.Services\Headtrip.Services.csproj" />

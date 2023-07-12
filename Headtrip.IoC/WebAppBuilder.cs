@@ -1,20 +1,25 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
-using Headtrip.Models.User;
-using Headtrip.Repositories;
 using Headtrip.Repositories.Abstract;
-using Headtrip.Services;
-using Headtrip.Services.Abstract;
-using Headtrip.Utilities;
+using Headtrip.Repositories;
 using Headtrip.Utilities.Abstract;
-using Microsoft.AspNetCore.Identity;
+using Headtrip.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Headtrip.Services.Abstract;
+using Headtrip.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication;
 
-namespace Headtrip.IoC
+namespace Headtrip.WebApiInitialization
 {
-    public static class IoC
+    public static class WebAppBuilder
     {
-        public static void RegisterForLoginServer(IServiceCollection services)
+        private static void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<IContext<HeadtripGameServerContext>, HeadtripGameServerContext>();
             services.AddScoped<IContext<HeadtripLoginServerContext>, HeadtripLoginServerContext>();
@@ -35,19 +40,52 @@ namespace Headtrip.IoC
             services.AddScoped<IAccountRepository, AccountRepository>();
 
 
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddSingleton<Services.Abstract.IAuthenticationService, Services.AuthenticationService>();
+            services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IAccountService, AccountService>();
 
             services.AddSingleton<ILogging<HeadtripLoginServerContext>, Logging<HeadtripLoginServerContext>>();
             services.AddSingleton<ILogging<HeadtripGameServerContext>, Logging<HeadtripGameServerContext>>();
 
-
         }
 
-        public static void RegisterForGameServer(IServiceCollection services)
+
+
+        public static WebApplication Create(string[] args)
         {
+            var builder = WebApplication.CreateBuilder(args);
+
+            RegisterServices(builder.Services);
 
 
+
+            builder.Services.AddControllers();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "JWT";
+                options.RequireAuthenticatedSignIn = false;
+            }).AddScheme<JwtAuthenticationOptions, JwtAuthenticationHandler>("JWT", options =>
+            {
+                options.SchemeName = "JWT";
+            });
+
+
+            var app = builder.Build();
+
+
+            app.UseHttpsRedirection();
+            app.UseAuthorization();
+            app.MapControllers();
+
+
+            return app;
 
         }
+
+
+
+
+
+
     }
 }
