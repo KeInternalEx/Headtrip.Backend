@@ -7,8 +7,8 @@ namespace Headtrip.GenerateSqlTables
     {
         static void Main(string[] args)
         {
-            var sqlScriptWriter = new SqlCreationScriptWriter<DatabaseObject>("GS");
-            var sqlScriptWriterLs = new SqlCreationScriptWriter<DatabaseObject>("LS");
+            var sqlScriptWriter = new SqlCreationScriptWriter<DatabaseObject>("GS", true);
+            var sqlScriptWriterLs = new SqlCreationScriptWriter<DatabaseObject>("LS", true);
 
 
 

@@ -14,8 +14,9 @@ namespace Headtrip.SQLUtilities
         public Dictionary<string, SqlScriptExpandedObject> _expandedTableObjects = new Dictionary<string, SqlScriptExpandedObject>();
         public StringBuilder _stringBuilder;
 
-        public SqlCreationScriptWriter(string context)
+        public SqlCreationScriptWriter(string context, bool dropExisting)
         {
+
             var baseType = typeof(T);
             var types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
@@ -67,12 +68,27 @@ namespace Headtrip.SQLUtilities
 
 
             _stringBuilder = new StringBuilder();
-            
+            if (dropExisting)
+            {
+                _stringBuilder.Append("DECLARE @sql NVARCHAR(max)=''\r\n\r\nSELECT @sql += ' Drop table ' + QUOTENAME(TABLE_SCHEMA) + '.'+ QUOTENAME(TABLE_NAME) + '; '\r\nFROM   INFORMATION_SCHEMA.TABLES\r\nWHERE  TABLE_TYPE = 'BASE TABLE'\r\n\r\nExec Sp_executesql @sql\r\n");
+                _stringBuilder.AppendLine("GO");
+
+                //foreach (var s in droppableForeignKeys)
+                //    _stringBuilder.AppendLine(s);
+
+                // foreach (var s in droppablePrimaryKeys)
+                //    _stringBuilder.AppendLine(s);
+
+                //_stringBuilder.AppendLine($"DROP TABLE IF EXISTS {obj.Value._tableAttribute?._sqlTableName}");
+            }
+
             foreach (var obj in _expandedTableObjects)
             {
                 var hasPrimaryKey = false;
                 var columns = string.Empty;
                 var indexCreationEntries = new List<string>();
+                var droppableForeignKeys = new List<string>();
+                var droppablePrimaryKeys = new List<string>();
 
                 foreach (var column in obj.Value._columnAttributes)
                 {
@@ -105,7 +121,8 @@ namespace Headtrip.SQLUtilities
 
                         var columnName = propInfo.Item2.Name;
 
-
+                        // if (dropExisting)
+                        //    droppablePrimaryKeys.Add($"IF OBJECT_ID(N'{obj.Value._tableAttribute?._sqlTableName}', N'U') IS NOT NULL\nBEGIN\nALTER TABLE {obj.Value._tableAttribute?._sqlTableName} DROP CONSTRAINT {column.Key};\nEND\n");
 
                         columnEntry += $" FOREIGN KEY REFERENCES {tblName}({columnName})";
                     }
@@ -120,6 +137,11 @@ namespace Headtrip.SQLUtilities
                     {
                         columnEntry += " PRIMARY KEY";
                         hasPrimaryKey = true;
+
+                       // if (dropExisting)
+                       // {
+                       //     droppablePrimaryKeys.Add($"IF OBJECT_ID(N'{obj.Value._tableAttribute?._sqlTableName}', N'U') IS NOT NULL\nBEGIN\nALTER TABLE {obj.Value._tableAttribute?._sqlTableName} DROP CONSTRAINT {column.Key};\nEND\n");
+                        //}
                     }
 
 
@@ -148,6 +170,7 @@ namespace Headtrip.SQLUtilities
                     if (!string.IsNullOrWhiteSpace(column.Value.index))
                     {
                         indexCreationEntries.Add($"CREATE INDEX idx_{column.Value.index} ON {obj.Value._tableAttribute?._sqlTableName}({column.Key});");
+
                     }
 
                     columnEntry += ",\n";
@@ -157,11 +180,17 @@ namespace Headtrip.SQLUtilities
                 columns = columns.Substring(0, columns.Length - 2);
 
 
+                
+
 
                 _stringBuilder.AppendLine($"CREATE TABLE {obj.Value._tableAttribute?._sqlTableName} (\n{columns}\n);");
+                _stringBuilder.AppendLine("GO");
 
                 foreach (var indexEntry in indexCreationEntries)
+                {
                     _stringBuilder.AppendLine(indexEntry);
+                    _stringBuilder.AppendLine("GO");
+                }
 
 
 

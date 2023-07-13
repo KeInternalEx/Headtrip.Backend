@@ -13,7 +13,8 @@ namespace Headtrip.Models.Instance
     {
         [SqlColumn(type ="nvarchar(255)", primaryKey =true,unique =true,index ="zonename")]
         public string? ZoneName { get; set; } = null!; // The name of the zone, this field is UNIQUE
-        [SqlColumn(type ="nvarchar(max)", unique =true)]
+
+        [SqlColumn(type ="nvarchar(max)")]
         public string? LevelName { get; set; } = null!; // The name of the level that needs to be passed to the unreal engine instance
 
         [SqlColumn(type ="int")]
