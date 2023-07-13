@@ -24,14 +24,11 @@ namespace Headtrip.Repositories
 
         public async Task CreateUser(User user)
         {
-            var entriesInserted = await _context.Connection.ExecuteAsync(
+            await _context.Connection.ExecuteAsync(
                 sql: "[User_Create]",
                 param: user,
                 transaction: _context.Transaction,
                 commandType: CommandType.StoredProcedure);
-
-            if (entriesInserted <= 0)
-                throw new Exception($"User creation failed, no entries inserted.");
         }
 
         public async Task DeleteUser(Guid userId)
@@ -91,7 +88,7 @@ namespace Headtrip.Repositories
 
         public async Task ConfirmEmail(Guid userId)
         {
-            var rowsUpdated = await _context.Connection.ExecuteAsync(
+            await _context.Connection.ExecuteAsync(
                 sql: "[User_ConfirmEmail]",
                 param: new
                 {
@@ -100,8 +97,6 @@ namespace Headtrip.Repositories
                 transaction: _context.Transaction,
                 commandType: CommandType.StoredProcedure);
 
-            if (rowsUpdated <= 0)
-                throw new Exception("ConfirmEmail failed, no rows updated");
         }
     }
 }

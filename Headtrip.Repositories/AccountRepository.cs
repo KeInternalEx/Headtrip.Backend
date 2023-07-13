@@ -25,14 +25,12 @@ namespace Headtrip.Repositories
 
         public async Task CreateAccount(Account account)
         {
-            var entriesInserted = await _Context.Connection.ExecuteAsync(
+            await _Context.Connection.ExecuteAsync(
                 sql: "[Account_CreateAccount]",
                 param: account,
                 transaction: _Context.Transaction,
                 commandType: CommandType.StoredProcedure);
 
-            if (entriesInserted <= 0)
-                throw new Exception("Account creation failed, no entries inserted");
         }
 
         public async Task<Account> GetAccountByUserId(Guid userId)

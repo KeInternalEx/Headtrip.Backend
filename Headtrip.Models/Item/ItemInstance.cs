@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Item
 {
+    /*
     public class ItemInstance : DatabaseObject
     {
         public Guid ItemInstanceId { get; set; }
@@ -15,4 +16,5 @@ namespace Headtrip.Models.Item
         public int Amount { get; set; }
         public bool Identified { get; set; }
     }
+    */
 }
