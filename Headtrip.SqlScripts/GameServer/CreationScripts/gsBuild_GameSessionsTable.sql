@@ -1,0 +1,18 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS GameSessions;
+GO
+
+CREATE TABLE GameSessions (
+	GameSessionId UNIQUEIDENTIFIER NOT NULL UNIQUE,
+	AccountId UNIQUEIDENTIFIER NOT NULL UNIQUE,
+	SelectedCharacterId UNIQUEIDENTIFIER NOT NULL UNIQUE,
+	PartyId UNIQUEIDENTIFIER NULL,
+	PartySlot INT NULL
+
+	CONSTRAINT [PK_GameSessions_GameSessionId] PRIMARY KEY NONCLUSTERED (GameSessionId),
+	INDEX [IX_GameSessions_AccountId] NONCLUSTERED (AccountId)
+);
+GO
+
+

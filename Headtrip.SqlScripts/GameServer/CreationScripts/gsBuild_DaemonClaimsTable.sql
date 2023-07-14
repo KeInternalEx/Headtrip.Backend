@@ -1,0 +1,12 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS DaemonClaims;
+GO
+CREATE TABLE DaemonClaims (
+	ZoneName NVARCHAR(255) NOT NULL,
+	DaemonId UNIQUEIDENTIFIER NOT NULL,
+	NumberOfContracts TINYINT NOT NULL
+);
+GO
+
+

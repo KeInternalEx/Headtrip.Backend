@@ -26,8 +26,8 @@ namespace Headtrip.WebApiInitialization
 
         private static void RegisterServices(IServiceCollection services)
         {
-            services.AddScoped<IContext<HeadtripGameServerContext>, HeadtripGameServerContext>();
-            services.AddScoped<IContext<HeadtripLoginServerContext>, HeadtripLoginServerContext>();
+            services.AddTransient<IContext<HeadtripGameServerContext>, HeadtripGameServerContext>();
+            services.AddTransient<IContext<HeadtripLoginServerContext>, HeadtripLoginServerContext>();
 
             services.AddTransient<IUnitOfWork<HeadtripGameServerContext>, UnitOfWork<HeadtripGameServerContext>>();
             services.AddTransient<IUnitOfWork<HeadtripLoginServerContext>, UnitOfWork<HeadtripLoginServerContext>>();

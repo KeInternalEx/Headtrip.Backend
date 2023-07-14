@@ -7,9 +7,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Headtrip.Models\Headtrip.Models.csproj" />
-    <ProjectReference Include="..\Headtrip.SQLUtilities\Headtrip.SQLUtilities.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -1,0 +1,20 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS Accounts;
+GO
+
+CREATE TABLE Accounts (
+	AccountId UNIQUEIDENTIFIER NOT NULL,
+	UserId UNIQUEIDENTIFIER NOT NULL,
+	LastLoginTime DATETIME2(7) NOT NULL,
+	TotalPlayTime BIGINT NOT NULL,
+	Money BIGINT NOT NULL,
+	CreatedOn DATETIME2(7) NOT NULL,
+	LastModifiedOn DATETIME2(7) NOT NULL,
+	MarkedForDeletion BIT NOT NULL DEFAULT 0
+
+	CONSTRAINT [PK_Accounts_AccountId] PRIMARY KEY NONCLUSTERED (AccountId)
+);
+GO
+
+

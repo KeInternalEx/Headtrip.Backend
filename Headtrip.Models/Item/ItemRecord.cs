@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Item
 {
-    /*
     public class ItemRecord : DatabaseObject
     {
         public Guid ItemRecordId { get; set; }
@@ -27,5 +26,4 @@ namespace Headtrip.Models.Item
 
         
     }
-    */
 }

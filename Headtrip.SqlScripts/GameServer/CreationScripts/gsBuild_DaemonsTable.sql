@@ -1,0 +1,14 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS Daemons;
+GO
+CREATE TABLE Daemons (
+	DaemonId UNIQUEIDENTIFIER NOT NULL,
+	Nickname NVARCHAR(MAX) NOT NULL
+
+
+	CONSTRAINT [PK_Daemons_DaemonId] PRIMARY KEY NONCLUSTERED (DaemonId)
+);
+GO
+
+

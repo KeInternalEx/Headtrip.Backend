@@ -12,6 +12,7 @@ namespace Headtrip.Daemon
 
         public static string DAEMON_NICKNAME { get; private set; } = ConfigurationManager.AppSettings["DaemonNickname"] ?? string.Empty;
         public static Guid DaemonId { get; set; }
+        public static bool IsSuperDaemon { get; set; }
 
 
         public static bool ValidateInitialDaemonState() =>
@@ -20,6 +21,8 @@ namespace Headtrip.Daemon
 
         public static async Task<bool> InitializeDaemon()
         {
+
+
 
         }
     }

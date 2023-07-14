@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Character
 {
-    /*
     public class CharacterInstance : DatabaseObject
     {
         public Guid CharacterId { get; set; }
@@ -15,5 +14,5 @@ namespace Headtrip.Models.Character
         public string? Name { get; set; }
         public long Experience { get; set; }
         
-    }*/
+    }
 }

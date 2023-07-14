@@ -13,6 +13,13 @@ namespace Headtrip.Utilities
         public void CommitTransaction() => _Context.CommitTransaction();
         public void Dispose() => _Context.Dispose();
         public void RollbackTransaction() => _Context.RollbackTransaction();
+        public void Finalize(bool success)
+        {
+            if (success)
+                CommitTransaction();
+            else
+                RollbackTransaction();
+        }
     }
 
 
@@ -76,7 +83,13 @@ namespace Headtrip.Utilities
         }
 
 
-
+        public void Finalize(bool success)
+        {
+            if (success)
+                CommitTransaction();
+            else
+                RollbackTransaction();
+        }
 
 
 

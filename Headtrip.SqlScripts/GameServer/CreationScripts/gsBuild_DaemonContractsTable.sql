@@ -1,0 +1,23 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS DaemonContracts;
+GO
+
+CREATE TABLE DaemonContracts (
+	DaemonContractId UNIQUEIDENTIFIER NOT NULL,
+	CurrentChannelId UNIQUEIDENTIFIER NOT NULL,
+	CurrentDaemonId UNIQUEIDENTIFIER NOT NULL,
+	TargetChannelId UNIQUEIDENTIFIER NULL,
+	TargetDaemonId UNIQUEIDENTIFIER NULL,
+	TransformingDaemonId UNIQUEIDENTIFIER NULL,
+	AccountId UNIQUEIDENTIFIER NOT NULL,
+	PartyId UNIQUEIDENTIFIER NULL,
+	ZoneName NVARCHAR(255) NOT NULL,
+	IsProcessing BIT NOT NULL DEFAULT 0
+
+	CONSTRAINT [PK_DaemonContracts_DaemonContractId] PRIMARY KEY NONCLUSTERED (DaemonContractId),
+	INDEX [IX_DaemonContracts_CurrentChannelId] NONCLUSTERED (CurrentChannelId)
+);
+GO
+
+

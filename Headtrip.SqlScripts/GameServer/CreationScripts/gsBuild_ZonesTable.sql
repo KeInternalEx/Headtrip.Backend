@@ -1,0 +1,17 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS Zones;
+GO
+CREATE TABLE Zones (
+	ZoneName NVARCHAR(255) UNIQUE NOT NULL,
+	LevelName NVARCHAR(MAX) NOT NULL,
+	SoftPlayerCap TINYINT NOT NULL,
+	HardPlayerCap TINYINT NOT NULL
+
+
+	
+	CONSTRAINT [PK_Zones_ZoneName] PRIMARY KEY NONCLUSTERED (ZoneName)
+);
+GO
+
+
