@@ -1,4 +1,5 @@
-﻿using Headtrip.Models.Daemon;
+﻿using Headtrip.Models.Abstract;
+using Headtrip.Models.Daemon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,20 @@ namespace Headtrip.Services.Abstract
         Task<CreateDaemonClaimsResult> CreateDaemonClaims(Guid daemonId, int freeServerSlots);
 
 
-
+        /// <summary>
+        /// Creates daemon contract groups based on all of the current claims that have been laid at the time of being called.
+        /// Does not create any changes in the database.
+        /// </summary>
+        /// <returns></returns>
         Task<GetDaemonContractGroupsResult> GetDaemonContractGroups();
+
+        /// <summary>
+        /// Removes the claims with the associated daemon contracts.
+        /// Updates the daemon contracts in the databases with the associated TargetDaemonId on each contract.
+        /// Calls gsDaemonProc_ProcessDaemonContractGroup several times.
+        /// </summary>
+        /// <param name="daemonContractGroups"></param>
+        /// <returns></returns>
+        Task<ServiceCallResult> ProcessDaemonContractGroups(List<DaemonContractGroup> daemonContractGroups);
     }
 }

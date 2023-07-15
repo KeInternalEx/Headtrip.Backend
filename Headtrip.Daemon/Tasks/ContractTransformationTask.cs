@@ -30,7 +30,7 @@ namespace Headtrip.Daemon.Tasks
 
         public async Task<DaemonTaskResult> Execute()
         {
-            var claims = await 
+            // var claims = await 
 
 
             

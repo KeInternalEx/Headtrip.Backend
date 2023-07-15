@@ -14,7 +14,6 @@ namespace Headtrip.Models.Daemon
         public Guid CurrentDaemonId { get; set; }
         public Guid? TargetChannelId { get; set; }
         public Guid? TargetDaemonId { get; set; }
-        public Guid? TransformingDaemonId { get; set; }
         public Guid AccountId { get; set; }
         public Guid? PartyId { get; set; }
         public string? ZoneName { get; set; }

@@ -19,5 +19,8 @@ namespace Headtrip.Repositories.Abstract
         Task<IEnumerable<DaemonClaim>> CreateClaimsForTransformableContracts(Guid daemonId, int numberOfFreeInstances);
         Task<IEnumerable<DaemonClaim>> GetAllDaemonClaims();
 
+
+        Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, string zoneName);
+
     }
 }

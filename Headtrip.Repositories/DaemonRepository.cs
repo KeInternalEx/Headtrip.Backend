@@ -84,5 +84,20 @@ namespace Headtrip.Repositories
                 sql: "[gsDaemonClaims_GetAllDaemonClaims]",
                 commandType: System.Data.CommandType.StoredProcedure);
         }
+
+
+        public async Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, string zoneName)
+        {
+            await _context.Connection.ExecuteAsync(
+                sql: "[gsDaemonProc_ProcessDaemonContractGroup]",
+                param: new
+                {
+                    DaemonContractIds = daemonContractIds,
+                    DaemonId = daemonId,
+                    ZoneName = zoneName
+                },
+                transaction: _context.Transaction,
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

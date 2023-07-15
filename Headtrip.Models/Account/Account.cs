@@ -18,5 +18,9 @@ namespace Headtrip.Models.Account
 
         public DateTime LastModifiedOn { get; set; }
 
+        public bool IsMarkedForDeletion { get; set; }
+        public bool IsLocked { get; set; }
+        public bool IsSuspended { get; set; }
+
     }
 }

@@ -120,11 +120,15 @@ namespace Headtrip.Services
                 {
                     LastModifiedOn = DateTime.UtcNow,
                     CreatedOn = DateTime.UtcNow,
-                    IsDeleted = false,
+
+                    IsMarkedForDeletion = false,
+                    IsLocked = false,
+                    IsSuspended = false,
+
 
                     UserId = userId,
                     LastLoginTime = DateTime.UtcNow,
-                    InventoryArray = "[]",
+                   // InventoryArray = "[]",
                     Money = 0,
                     TotalPlaytimeMs = 0,
                 };

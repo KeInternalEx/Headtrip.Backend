@@ -34,7 +34,7 @@ BEGIN
 				CAST((SELECT TOP 1 [Zone].SoftPlayerCap FROM Zones AS [Zone] WHERE [Zone].ZoneName = [Contract].ZoneName) AS Float) AS SoftPlayerCap
 			FROM DaemonContracts AS [Contract]
 			WHERE
-				[Contract].TransformingDaemonId IS NULL AND
+				[Contract].TargetChannelId IS NULL AND
 				[Contract].TargetDaemonId IS NULL
 			GROUP BY [Contract].ZoneName
 		) AS [Aggregate]

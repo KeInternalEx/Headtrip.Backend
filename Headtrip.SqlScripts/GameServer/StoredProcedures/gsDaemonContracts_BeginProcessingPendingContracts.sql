@@ -17,17 +17,11 @@ BEGIN
 	UPDATE DaemonContracts
 	SET
 		IsProcessing = 1
+	OUTPUT inserted.*
 	WHERE
 		CurrentDaemonId = @DaemonId AND
-		TargetDaemonId IS NOT NULL AND
-		IsProcessing = 0 AND
-		TransformingDaemonId IS NULL
-
-	SELECT * FROM DaemonContracts
-	WHERE
-		IsProcessing = 1 AND
-		TransformingDaemonId IS NULL AND
-		CurrentDaemonId = @DaemonId
+		TargetChannelId IS NOT NULL AND
+		IsProcessing = 0
 
 END
 

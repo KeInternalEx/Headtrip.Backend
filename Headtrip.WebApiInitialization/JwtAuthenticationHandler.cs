@@ -43,7 +43,7 @@ namespace Headtrip.WebApiInitialization
         }
 
         public static List<Claim> ExtractJwtClaims(TokenValidationResult tokenValidationResult) =>
-            tokenValidationResult.Claims.Select((kv) => new Claim(kv.Key, kv.Value.ToString() ?? "")).ToList();
+            tokenValidationResult.Claims.Select((kv) => new Claim(kv.Key, kv.Value.ToString())).ToList();
 
         public JwtAuthenticationHandler(IOptionsMonitor<JwtAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : 
             base(options, logger, encoder, clock)

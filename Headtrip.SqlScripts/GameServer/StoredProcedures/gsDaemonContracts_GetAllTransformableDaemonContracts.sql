@@ -15,7 +15,9 @@ BEGIN
 
 	SELECT * FROM DaemonContracts
 	WHERE
-		TransformingDaemonId IS NULL;
+		TargetDaemonId IS NULL AND
+		TargetChannelId IS NULL AND
+		ZoneName in (SELECT ZoneName FROM DaemonClaims);
 
 END
 

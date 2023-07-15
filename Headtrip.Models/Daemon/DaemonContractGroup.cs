@@ -11,8 +11,8 @@ namespace Headtrip.Models.Daemon
         public DaemonClaim? Claim { get; set; }
         public List<DaemonContract>? Contracts { get; set; }
 
-        public int NumberOfParties { get; set; }
-        public int NumberOfPlayers { get; set; }
+        public byte NumberOfParties { get; set; }
+        public byte NumberOfPlayers { get; set; }
 
     }
 }
