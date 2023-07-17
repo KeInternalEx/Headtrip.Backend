@@ -3,18 +3,21 @@
     internal class Program
     {
 
-        static void test<T>()
-        {
-            Console.WriteLine(typeof(T).Name);
-        }
+   
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
 
-            test<Program>();
+            var s = new Stack<string>();
+
+            s.Push("a");
+            s.Push("b");
 
 
+            foreach (var a in s.ToList())
+            {
+                Console.WriteLine(a);
+            }
 
 
 

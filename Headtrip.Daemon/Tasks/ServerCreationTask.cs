@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Daemon.Tasks
 {
-    public class ContractTansformationTask : IDaemonTask
+    public class ServerCreationTask : IDaemonTask
     {
         private readonly ILogging<HeadtripGameServerContext> _logging;
         private readonly IDaemonService _daemonService;
 
 
-        public ContractTansformationTask(
+        public ServerCreationTask(
             ILogging<HeadtripGameServerContext> logging, 
             IDaemonService daemonService)
         {
@@ -30,15 +30,16 @@ namespace Headtrip.Daemon.Tasks
 
         public async Task<DaemonTaskResult> Execute()
         {
-            var getDaemonContractGroupsResult = await _daemonService.GetDaemonContractGroups();
-            if (getDaemonContractGroupsResult.IsSuccessful && getDaemonContractGroupsResult.ContractGroups.Count > 0)
-            {
+            // var claims = await 
 
 
+            
 
 
-            }
-
+            // TODO: THEN THE SERVICE WILL PICK UP THE CONTRACTS IT HAS A "TRANSFORMING ID" MATCHING
+            // TODO: IT WILL COLLECT THE CHANNELS BASED ON THOSE CONTRACTS AND IT WILL CREATE AN UNREAL SERVER FOR EACH CHANNEL
+            // TODO: IT WILL UPDATE THE CHANNEL RECORDS WITH THE CONNECTION STRINGS FOR THE UNREAL SERVERS
+            // TODO: IT WILL THEN UPDATE THE CONTRACTS WITH THE DaemonId, ALLOWING IT TO BE PICKED UP BY THE CORRECT DAEMONS
              
 
         }

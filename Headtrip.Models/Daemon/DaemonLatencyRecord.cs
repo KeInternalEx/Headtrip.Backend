@@ -7,8 +7,12 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Daemon
 {
-    public class CreateDaemonClaimsResult : ServiceCallResult
+    public class DaemonLatencyRecord : DatabaseObject
     {
-        public List<DaemonClaim>? Claims { get; set; }
+        public Guid DaemonId { get; set; }
+        public Guid AccountId { get; set; }
+        public float Latency { get; set; }
+
+
     }
 }

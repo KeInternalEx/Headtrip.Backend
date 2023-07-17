@@ -10,6 +10,6 @@ namespace Headtrip.Models.Daemon
     {
         public string? ZoneName { get; set; }
         public List<DaemonContract>? Contracts { get; set; }
-
+        public Dictionary<Guid, float>? AverageLatencyByDaemonId { get; set; }
     }
 }

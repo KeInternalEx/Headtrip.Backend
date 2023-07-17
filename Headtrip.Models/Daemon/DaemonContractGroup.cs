@@ -8,7 +8,10 @@ namespace Headtrip.Models.Daemon
 {
     public class DaemonContractGroup
     {
-        public DaemonClaim? Claim { get; set; }
+        public string? ZoneName { get; set; }
+        public Guid DaemonId { get; set; }
+        public Guid DaemonContractGroupId { get; set; }
+
         public List<DaemonContract>? Contracts { get; set; }
 
         public byte NumberOfParties { get; set; }

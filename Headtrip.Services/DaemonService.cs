@@ -1,88 +1,55 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Models.Abstract;
 using Headtrip.Models.Daemon;
+using Headtrip.Models.Instance;
 using Headtrip.Repositories.Abstract;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
+using System.IO;
+using System.Runtime.ConstrainedExecution;
+using System.Text.RegularExpressions;
 
 namespace Headtrip.Services
 {
     public class DaemonService : IDaemonService
     {
+
+        public static readonly float SERVER_LATENCY_WORST_QUALITY = 99999;
+        public static readonly float SERVER_LATENCY_BAD_QUALITY = 100;
+        public static readonly float SERVER_LATENCY_AVG_QUALITY = 80;
+        public static readonly float SERVER_LATENCY_HIGH_QUALITY = 60;
+
+        public static readonly float[] SERVER_LATENCY_TIERS =
+        {
+            SERVER_LATENCY_HIGH_QUALITY,
+            SERVER_LATENCY_AVG_QUALITY,
+            SERVER_LATENCY_BAD_QUALITY,
+            SERVER_LATENCY_WORST_QUALITY
+        };
+
+
+
+
         private readonly ILogging<HeadtripGameServerContext> _logging;
         private readonly IDaemonRepository _daemonRepository;
+        private readonly IChannelRepository _channelRepository;
+        private readonly IZoneRepository _zoneRepository;
+
         private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;
 
         public DaemonService(
             ILogging<HeadtripGameServerContext> logging,
             IDaemonRepository daemonRepository,
+            IChannelRepository channelRepository,
+            IZoneRepository zoneRepository,
             IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork)
         {
             _logging = logging;
             _daemonRepository = daemonRepository;
+            _channelRepository = channelRepository;
+            _zoneRepository = zoneRepository;
             _gsUnitOfWork = gsUnitOfWork;
         }
-
-
-
-
-
-
-        public async Task<CreateDaemonClaimsResult> CreateDaemonClaims(Guid daemonId, int freeServerSlots)
-        {
-            var result = new CreateDaemonClaimsResult
-            {
-                IsSuccessful = false,
-                Status = string.Empty,
-                Claims = null
-            };
-
-            try
-            {
-                _gsUnitOfWork.BeginTransaction();
-
-                var daemonClaims = await _daemonRepository.CreateClaimsForTransformableContracts(daemonId, freeServerSlots);
-                if (daemonClaims == null || daemonClaims.Count() == 0)
-                {
-                    result.Status = "No pending contracts";
-                    result.IsSuccessful = true;
-
-                    return result;
-                }
-
-                result.Claims = daemonClaims.ToList();
-                result.IsSuccessful = true;
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                result = ServiceCallResult.BuildForException<CreateDaemonClaimsResult>(ex);
-
-                _logging.LogException(ex);
-
-                return result;
-            }
-            finally
-            {
-                _gsUnitOfWork.Finalize(result.IsSuccessful);
-            }
-        }
-
-
-        // TODO: GET ALL CLAIMS
-        // TODO: GROUP CLAIMS BY ZONE NAME
-        // TODO: FOR EACH GROUP, GET ALL CONTRACTS THAT NEED TO BE TRANSFORMED
-
-        // TODO: IN THOSE CONTRACTS, IDENTIFY ALL OF THE CURRENT PARTIES (PLAYERS WHO HAVE THE SAME PARTY ID)
-        // TODO: SORT THOSE PARTIES BY SIZE DESCENDING
-
-        // TODO: ASSIGN THE PARTIES TO EACH SERVER
-        // TODO: ASSIGN THE REST OF THE CONTRACTS (NON PARTY PLAYERS) BUT IN REVERSE (FILL LESS FULL SERVERS WITH SOLOS)
-
-        // TODO: FOR EACH CONTRACT GROUP, SEND THE LIST OF ContractIds TO THE UPDATE SP, ALONG WITH THE DaemonId AND ChannelId, AND ZoneName
-        // TODO: THAT SP WILL SPLIT THE SP'S PARAM INTO UNQIUE IDENTIFIERS, UPDATE ALL OF THE RECORDS WITH THE DAEMON ID (TransformingDaemonId)
-        // TODO: AND THEN FINALLY DELETE THE CLAIM
 
         public async Task<GetDaemonContractGroupsResult> GetDaemonContractGroups()
         {
@@ -94,124 +61,265 @@ namespace Headtrip.Services
 
             try
             {
+                var daemons = await _daemonRepository.GetAllDaemons();
+                if (daemons.Count() == 0) {
+                    result.IsSuccessful = false;
+                    result.Status = "There are no active daemons.";
 
-                var daemonClaims = await _daemonRepository.GetAllDaemonClaims();
-                var daemonContracts = await _daemonRepository.GetAllTransformableDaemonContracts();
-
-
-                var zoneNames = daemonClaims.Select((c) => c.ZoneName!).Distinct();
-                var contractGroupsByZoneName = zoneNames.ToDictionary((zoneName) => zoneName!, (zoneName) => new List<DaemonContractGroup>());
-                var contractsByZoneName = zoneNames.ToDictionary((zoneName) => zoneName!, (zoneName) => new List<DaemonContract>());
-
-
-                foreach (var claim in daemonClaims)
-                {
-                    contractGroupsByZoneName[claim.ZoneName].Add(new DaemonContractGroup
-                    {
-                        Claim = claim,
-                        Contracts = new List<DaemonContract>(),
-                        NumberOfParties = 0,
-                        NumberOfPlayers = 0
-                    });
+                    return result;
                 }
+
+
+                var daemonContracts = await _daemonRepository.GetAllTransformableDaemonContracts();
+                if (daemonContracts.Count() == 0)
+                {
+                    result.IsSuccessful = true;
+                    result.Status = "There are currently no transformable daemon contracts.";
+
+                    return result;
+                }
+
+                var daemonLatencyRecords = await _daemonRepository.GetLatencyRecordsForTransformableContracts();
+                if (daemonLatencyRecords.Count() == 0)
+                {
+                    result.IsSuccessful = false;
+                    result.Status = "There are transformable contracts, but no latency records describing their ping map.";
+
+                    return result;
+                }
+
+                var zoneNames = daemonContracts.Select((c) => c.ZoneName!).Distinct();
+
+                var contractGroupsByDaemonId = daemons.ToDictionary((daemon) => daemon.DaemonId, (daemon) => new List<DaemonContractGroup>());
+                var daemonsByDaemonId = daemons.ToDictionary((daemon) => daemon.DaemonId, (daemon) => daemon);
+                
+                var daemonLatencyRecordsByAccountId = daemonLatencyRecords.ToDictionary((record) => record.AccountId, (record) => new List<DaemonLatencyRecord>());
+                var daemonLatencyRecordsByDaemonId = daemonLatencyRecords.ToDictionary((record) => record.DaemonId, (record) => new List<DaemonLatencyRecord>());
+
+                var relevantZonesByName = (await _zoneRepository.GetAllZones())
+                    .Where((zone) => zoneNames.Contains(zone.ZoneName))
+                    .ToDictionary((zone) => zone.ZoneName!, (zone) => zone);
+
+                var contractsByZoneName = zoneNames.ToDictionary((zoneName) => zoneName!, (zoneName) => new List<DaemonContract>());
 
                 foreach (var contract in daemonContracts)
                     contractsByZoneName[contract.ZoneName].Add(contract);
 
+                foreach (var record in daemonLatencyRecords)
+                {
+                    daemonLatencyRecordsByAccountId[record.AccountId].Add(record);
+                    daemonLatencyRecordsByDaemonId[record.DaemonId].Add(record);
+                }
 
                 foreach (var zoneName in zoneNames)
                 {
-                    var contractGroups = contractGroupsByZoneName[zoneName];
+                    
+                    var zone = relevantZonesByName[zoneName];
                     var contracts = contractsByZoneName[zoneName];
+
                     var contractsWithParties = contracts.Where((contract) => contract.PartyId.HasValue);
-
-                    // Continue on if we don't have any parties in this zone
-                    if (contractsWithParties.Count() == 0)
-                        continue;
-
                     var contractsByPartyId = contractsWithParties.ToDictionary((contract) => contract.PartyId!.Value, (contract) => new List<DaemonContract>());
-
 
                     foreach (var partyContract in contractsWithParties)
                         contractsByPartyId[partyContract.PartyId!.Value].Add(partyContract);
 
-
-                    // Calling pop on this stack gets us descending order
-                    // We only care about the parties that have more than one person in them
                     var partyMappings = new Stack<DaemonPartyMapping>(
-                        contractsByPartyId.Values.Where((party) => party.Count > 1).OrderBy((party) => party.Count).Select((party) =>
-                        {
-                            return new DaemonPartyMapping
+                        contractsByPartyId.Values
+                            .Where((partyContracts) => partyContracts.Count > 1)
+                            .Select((partyContracts) =>
                             {
-                                ZoneName = zoneName,
-                                Contracts = party
-                            };
-                        }).ToArray());
+                                var partyMapping = new DaemonPartyMapping
+                                {
+                                    ZoneName = zoneName,
+                                    Contracts = partyContracts,
+                                    AverageLatencyByDaemonId = new Dictionary<Guid, float>()
+                                };
 
+                                foreach (var daemon in daemons)
+                                {
+                                    var avgLatency = daemonLatencyRecords
+                                        .Where((record) => partyContracts.Exists((ctr) => ctr.AccountId == record.AccountId))
+                                        .Select((record) => record.Latency)
+                                        .Average();
 
-                    int currentContractGroupIndex = 0;
-                    var currentContractGroup = contractGroups[currentContractGroupIndex];
+                                    partyMapping.AverageLatencyByDaemonId.Add(daemon.DaemonId, avgLatency);
+                                }
 
-                    while (
-                        partyMappings.Count > 0 &&
-                        currentContractGroupIndex < contractGroups.Count)
+                                return partyMapping;
+                            })
+                            .OrderByDescending((partyMapping) => partyMapping.Contracts.Count)
+                            .ToArray());
+
+                    // Assign parties first, creating groups as necessary
+
+                    while (partyMappings.Count > 0)
                     {
+                        var party = partyMappings.Pop();
 
-                        var currentParty = partyMappings.Pop();
-
-                        // If the party doesn't fit into this contract group, advance to the next group.
-                        if (currentParty.Contracts.Count > currentContractGroup.Claim.NumberOfContracts - currentContractGroup.NumberOfPlayers)
+                        foreach (var latencyLimit in SERVER_LATENCY_TIERS)
                         {
-                            currentContractGroupIndex++;
-                            currentContractGroup = contractGroups[currentContractGroupIndex];
-                        }
+                            var possibleDaemonsForLatencyTier = daemons
+                                .Where((daemon) => party.AverageLatencyByDaemonId[daemon.DaemonId] <= latencyLimit)
+                                .OrderBy((daemon) => party.AverageLatencyByDaemonId[daemon.DaemonId]);
 
-                        // Update the target daemon id for these contracts
-                        foreach (var partyContract in currentParty.Contracts)
-                            partyContract.TargetDaemonId = currentContractGroup.Claim.DaemonId;
+                            if (possibleDaemonsForLatencyTier.Count() == 0)
+                                continue;
 
-                        currentContractGroup.NumberOfParties++;
-                        currentContractGroup.NumberOfPlayers += (byte)currentParty.Contracts.Count;
-                        currentContractGroup.Contracts.AddRange(currentParty.Contracts);
+                            var possibleExistingGroupsForLatencyTier = contractGroupsByDaemonId
+                                .Where((kv) =>
+                                    possibleDaemonsForLatencyTier.Any((daemon) => daemon.DaemonId == kv.Key) &&
+                                    kv.Value.Any((group) => 
+                                        zone.ZoneName == zoneName &&
+                                        zone.HardPlayerCap - group.NumberOfPlayers >= party.Contracts.Count));
 
-                        contracts.RemoveAll(currentParty.Contracts.Contains); // Remove these contracts from the zone's contract pool
-                    }
+                            // If there are no groups that will fit this party, we need to make a new one.
+                            if (possibleExistingGroupsForLatencyTier.Count() == 0)
+                            {
+                                var targetDaemon = possibleDaemonsForLatencyTier
+                                    .FirstOrDefault((daemon) => daemon.NumberOfFreeEntries > 0);
 
-                    currentContractGroupIndex = contractGroups.Count - 1;
-                    currentContractGroup = contractGroups[currentContractGroupIndex];
+                                // There are no daemons with space for a free entry, we'll have to go to a higher latency tier
+                                if (targetDaemon == null)
+                                    continue;
 
+                                // Create the new contract group for the target daemon
+                                var newContractGroup = new DaemonContractGroup
+                                {
+                                    Contracts = party.Contracts,
+                                    DaemonId = targetDaemon.DaemonId,
+                                    DaemonContractGroupId = Guid.NewGuid(),
+                                    NumberOfParties = 1,
+                                    NumberOfPlayers = (byte)party.Contracts.Count,
+                                    ZoneName = zoneName
+                                };
 
-                    foreach (var contract in contracts)
-                    {
-                        // Make sure current contract group has space to add more contracts, if it doesn't then back it up
-                        while (
-                            currentContractGroup.NumberOfPlayers == currentContractGroup.Claim.NumberOfContracts &&
-                            currentContractGroupIndex > 0)
-                        {
-                            currentContractGroupIndex--;
-                            currentContractGroup = contractGroups[currentContractGroupIndex];
-                        }
+                                // Add the contract group to the list for this daemon
+                                contractGroupsByDaemonId[targetDaemon.DaemonId].Add(newContractGroup);
 
-                        if (currentContractGroup.NumberOfPlayers == currentContractGroup.Claim.NumberOfContracts &&
-                            currentContractGroupIndex == 0)
-                        {
+                                // Remove the contracts referenced by this party so they don't get processed again later
+                                contracts.RemoveAll((contract) => party.Contracts.Any((pc) => pc.DaemonContractId == contract.DaemonContractId));
+                                
+                                break; // Party successfully assigned. Break out of the foreach and allow the next party to be popped from the stack
+                            }
+
+                            // Select the best possible group for this party
+                            // Lowest ping and least amount of people in the group
+                            // 
+
+                            var group = possibleExistingGroupsForLatencyTier
+                                .OrderBy((kv) => party.AverageLatencyByDaemonId[kv.Key])
+                                .Select((kv) => kv.Value.MinBy((group) => group.NumberOfPlayers))
+                                .Where((group) => group.ZoneName == zoneName)
+                                .First(); // This should never throw, if it does then something is seriously wrong.
+
+                            group.NumberOfParties++;
+                            group.NumberOfPlayers += (byte)party.Contracts.Count;
+                            group.Contracts.AddRange(party.Contracts);
+
+                            contracts.RemoveAll((contract) => party.Contracts.Any((pc) => pc.DaemonContractId == contract.DaemonContractId));
+
                             break;
                         }
-
-                        contract.TargetDaemonId = currentContractGroup.Claim.DaemonId;
-
-
-                        currentContractGroup.NumberOfPlayers++;
-                        currentContractGroup.Contracts.Add(contract);
                     }
 
+                    // Parties have been assigned, assign individual contracts now
+                    var remainingContracts = new Stack<DaemonContract>(contracts);
 
-                    result.ContractGroups.AddRange(contractGroups);
+                    while (remainingContracts.Count > 0)
+                    {
+                        var currentContract = remainingContracts.Pop();
+
+                        foreach (var latencyLimit in SERVER_LATENCY_TIERS)
+                        {
+                            var latencyRecordsForTier = daemonLatencyRecordsByAccountId[currentContract.AccountId]
+                                .Where((record) => record.Latency <= latencyLimit)
+                                .OrderBy((record) => record.Latency);
+
+
+                            // There are no latency records that fit inside of this tier, move to a higher tier.
+                            if (latencyRecordsForTier.Count() == 0)
+                                continue;
+
+
+
+                            var possibleExistingGroupsForLatencyTier = contractGroupsByDaemonId
+                                .Where((kv) =>
+                                    latencyRecordsForTier.Any((record) => record.DaemonId == kv.Key) &&
+                                    kv.Value.Any((group) =>
+                                        zone.ZoneName == zoneName &&
+                                        zone.SoftPlayerCap - group.NumberOfPlayers > 0)); // Use the soft player cap to try to maintain server performance
+
+                            // If there are no groups that will fit this party, we need to make a new one.
+                            // We should also select a daemon that has the lowest possible ping for the remaining contracts
+                            // Because it's very likely that we will be sending further contracts over to this group
+                            if (possibleExistingGroupsForLatencyTier.Count() == 0)
+                            {
+                                var possibleTargets = latencyRecordsForTier
+                                    .Where((daemon) => daemonsByDaemonId[daemon.DaemonId].NumberOfFreeEntries > 0);
+
+                                // There are no daemons with space for a free entry, we'll have to go to a higher latency tier
+                                if (possibleTargets.Count() == 0)
+                                    continue;
+
+
+
+                                var bestPossibleTarget = possibleTargets
+                                    .OrderBy((r) => remainingContracts
+                                        .Select((contract) =>
+                                            daemonLatencyRecordsByAccountId[contract.AccountId]
+                                                .FirstOrDefault((record) => record.DaemonId == r.DaemonId))
+                                        .Where((latencyRecord) =>
+                                            latencyRecord != null &&
+                                            latencyRecord.Latency <= latencyLimit)
+                                        .Average((record) => record.Latency))
+                                    .FirstOrDefault();
+
+                                // Couldn't find a target daemon
+                                if (bestPossibleTarget == null)
+                                    continue;
+
+
+                                // Create the new contract group for the target daemon
+                                var newContractGroup = new DaemonContractGroup
+                                {
+                                    Contracts = new List<DaemonContract>() { currentContract },
+                                    DaemonId = bestPossibleTarget.DaemonId,
+                                    DaemonContractGroupId = Guid.NewGuid(),
+                                    NumberOfParties = 0,
+                                    NumberOfPlayers = 1,
+                                    ZoneName = zoneName
+                                };
+
+                                // Add the contract group to the list for this daemon
+                                contractGroupsByDaemonId[bestPossibleTarget.DaemonId].Add(newContractGroup);
+                                break; // Party successfully assigned. Break out of the foreach and allow the next party to be popped from the stack
+                            }
+
+                            // Select the best possible group for this party
+                            // Lowest ping and least amount of people in the group
+                            // 
+
+                            var group = possibleExistingGroupsForLatencyTier
+                                .OrderBy((kv) => daemonLatencyRecordsByDaemonId[kv.Key].First((r) => r.AccountId == currentContract.AccountId).Latency)
+                                .Select((kv) => kv.Value.MaxBy((group) => group.NumberOfPlayers)) 
+                                .Where((group) => group.ZoneName == zoneName)
+                                .First(); // This should never throw, if it does then something is seriously wrong.
+
+                            group.NumberOfPlayers++;
+                            group.Contracts.Add(currentContract);
+
+                            break;
+                        }
+                    }
                 }
 
 
 
+               
+
+
                 result.IsSuccessful = true;
+                result.ContractGroups = contractGroupsByDaemonId.Values.SelectMany((x) => x).ToList();
                 result.Status = $"Successfully created {result.ContractGroups.Count} contract groups.";
 
 
@@ -249,11 +357,11 @@ namespace Headtrip.Services
                 {
                     await _daemonRepository.ProcessDaemonContractGroup(
                         string.Join(",", contractGroup.Contracts.Select((contract) => contract.DaemonContractId.ToString("D"))),
-                        contractGroup.Claim.DaemonId,
-                        contractGroup.Claim.ZoneName);
+                        contractGroup.DaemonId,
+                        contractGroup.DaemonContractGroupId,
+                        contractGroup.ZoneName);
                 }
 
-                _gsUnitOfWork.CommitTransaction();
 
                 result.IsSuccessful = true;
                 result.Status = $"Successfully inserted {daemonContractGroups.Count} daemon contract groups";
@@ -262,7 +370,6 @@ namespace Headtrip.Services
             }
             catch (Exception ex)
             {
-                _gsUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
                 result = ServiceCallResult.BuildForException<ServiceCallResult>(ex);
@@ -276,5 +383,101 @@ namespace Headtrip.Services
         }
 
 
+        public async Task<ServiceCallResult> BeginProcessingTransformedDaemonContracts(Guid daemonId)
+        {
+            // TODO: NEED TO GROUP CONTRACTS ON THEIR CONTRACT GROUP ID FIELD
+            // TODO: NEED TO MAKE A SERVER INSTANCE FOR EACH CONTRACT GROUP
+            // TODO: NEED TO ASSIGN SERVER INSTANCE A CHANNEL ID AND PUT IT INTO THE POOL OF SERVERS
+            // TODO: NEED TO UPDATE CONTRACT OBJECTS IN THE DATABASE WITH THE CHANNEL ID
+
+
+
+
+
+        }
+
+        public async Task<BeginProcessingPendingDaemonContractsResult> BeginProcessingPendingDaemonContracts(Guid daemonId)
+        {
+            var result = new BeginProcessingPendingDaemonContractsResult
+            {
+                IsSuccessful = false,
+                Status = string.Empty
+            };
+
+            try
+            {
+                _gsUnitOfWork.BeginTransaction();
+
+
+                var contractsToProcess = await _daemonRepository.BeginProcessingPendingContracts(daemonId);
+                if (contractsToProcess.Count() == 0)
+                {
+                    result.IsSuccessful = true;
+                    result.Status = $"No contracts to process for daemon {daemonId}";
+
+                    return result;
+                }
+
+                var channels = await _channelRepository.GetAllChannels();
+                if (channels.Count() == 0)
+                {
+                    result.IsSuccessful = false;
+                    result.Status = $"There are no channels to load the contracts into!";
+
+                    return result;
+                }
+
+
+                result.IsSuccessful = true;
+                result.Status = $"Received {contractsToProcess.Count()} contracts to process.";
+
+                result.Contracts = contractsToProcess.ToList();
+                result.Channels = channels.ToList();
+
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+
+                return result;
+            }
+            finally
+            {
+                _gsUnitOfWork.Finalize(result.IsSuccessful);
+            }
+        }
+
+        public async Task<ServiceCallResult> EndProcessingPendingDaemonContracts(Guid daemonId)
+        {
+            var result = new ServiceCallResult
+            {
+                IsSuccessful = false,
+                Status = string.Empty
+            };
+
+            try
+            {
+                _gsUnitOfWork.BeginTransaction();
+                
+                await _daemonRepository.EndProcessingPendingContracts(daemonId);
+
+                result.IsSuccessful = true;
+                result.Status = "Successfully removed completed contracts from the database.";
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+
+                return result;
+            }
+            finally
+            {
+                _gsUnitOfWork.Finalize(result.IsSuccessful);
+            }
+        }
     }
 }

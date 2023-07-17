@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Daemon
 {
-    public class DaemonClaim : DatabaseObject
+    public class DaemonGameServerInstance : DatabaseObject
     {
-        public string? ZoneName { get; set; }
+        public Guid DaemonGameServerInstanceId { get; set; }
         public Guid DaemonId { get; set; }
-        public byte NumberOfContracts { get; set; }
+        public string? ConnectionString { get; set; }
+        public byte NumberOfPlayersConnected { get; set; }
+
     }
 }

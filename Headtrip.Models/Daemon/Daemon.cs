@@ -14,5 +14,6 @@ namespace Headtrip.Models.Daemon
     {
         public Guid DaemonId { get; set; }
         public string? Nickname { get; set; }
+        public int NumberOfFreeEntries { get; set; }
     }
 }

@@ -5,12 +5,13 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsDaemonProc_ProcessDaemonContractGroup]
+DROP PROCEDURE IF EXISTS [dbo].[gsDaemonContracts_ProcessDaemonContractGroup]
 GO
 
-CREATE PROCEDURE [dbo].[gsDaemonProc_ProcessDaemonContractGroup]
+CREATE PROCEDURE [dbo].[gsDaemonContracts_ProcessDaemonContractGroup]
 	@DaemonContractIds VARCHAR(MAX),
 	@DaemonId UniqueIdentifier,
+	@DaemonContractGroupId UniqueIdentifier,
 	@ZoneName NVARCHAR(255)
 AS
 BEGIN
@@ -19,14 +20,10 @@ BEGIN
 	
 	UPDATE DaemonContracts
 	SET
-		TargetDaemonId = @DaemonId
+		TargetDaemonId = @DaemonId,
+		ContractGroupId = @DaemonContractGroupId
 	WHERE
 		DaemonContractId IN (SELECT CAST([Value] AS UniqueIdentifier) FROM STRING_SPLIT(@DaemonContractIds, ','));
-
-	DELETE TOP(1) FROM DaemonCLaims
-	WHERE
-		DaemonId = @DaemonId AND
-		ZoneName = @ZoneName;
 
 
 END

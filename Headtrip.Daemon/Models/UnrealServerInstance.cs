@@ -11,7 +11,6 @@ namespace Headtrip.Daemon.Models
     {
         public Guid ChannelId { get; set; }
         public Process? Process { get; set; }
-        public string? PipeName { get; set; }
         public DateTime StartTime { get; set; }
     }
 }

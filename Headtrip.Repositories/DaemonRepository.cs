@@ -24,7 +24,7 @@ namespace Headtrip.Repositories
         public async Task<Daemon> GetOrCreateDaemonByNickname(string nickname)
         {
             return await _context.Connection.QueryFirstOrDefaultAsync<Daemon>(
-                sql: "[gsDaemon_GetOrCreateDaemonByNickname]",
+                sql: "[gsDaemons_GetOrCreateDaemonByNickname]",
                 param: new
                 {
                     Nickname = nickname
@@ -36,11 +36,12 @@ namespace Headtrip.Repositories
         public async Task<Daemon> GetDaemonByDaemonId(Guid daemonId)
         {
             return await _context.Connection.QueryFirstOrDefaultAsync<Daemon>(
-                sql: "[gsDaemon_GetDaemonByDaemonId]",
+                sql: "[gsDaemons_GetDaemonByDaemonId]",
                 param: new
                 {
                     DaemonId = daemonId
                 },
+                transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
@@ -56,46 +57,55 @@ namespace Headtrip.Repositories
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<DaemonClaim>> CreateClaimsForTransformableContracts(Guid daemonId, int numberOfCreatableInstances)
+        public async Task EndProcessingPendingContracts(Guid daemonId)
         {
-            return await _context.Connection.QueryAsync<DaemonClaim>(
-               sql: "[gsDaemonClaims_CreateClaimsForTransformableContracts]",
-               param: new
-               {
-                   DaemonId = daemonId,
-                   FreeInstances = numberOfCreatableInstances
-               },
-               transaction: _context.Transaction,
-               commandType: System.Data.CommandType.StoredProcedure);
-
-
+            await _context.Connection.QueryAsync<DaemonContract>(
+                sql: "[gsDaemonContracts_EndProcessingPendingContracts]",
+                param: new
+                {
+                    DaemonId = daemonId
+                },
+                transaction: _context.Transaction,
+                commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<IEnumerable<Daemon>> GetAllDaemons()
+        {
+            return await _context.Connection.QueryAsync<Daemon>(
+                sql: "[gsDaemons_GetAllDaemons",
+                transaction: _context.Transaction,
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
+
 
         public async Task<IEnumerable<DaemonContract>> GetAllTransformableDaemonContracts()
         {
             return await _context.Connection.QueryAsync<DaemonContract>(
                 sql: "[gsDaemonContracts_GetAllTransformableDaemonContracts]",
+                transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<DaemonClaim>> GetAllDaemonClaims()
-        {
-            return await _context.Connection.QueryAsync<DaemonClaim>(
-                sql: "[gsDaemonClaims_GetAllDaemonClaims]",
-                commandType: System.Data.CommandType.StoredProcedure);
-        }
-
-
-        public async Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, string zoneName)
+        public async Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, Guid daemonContractGroupId, string zoneName)
         {
             await _context.Connection.ExecuteAsync(
-                sql: "[gsDaemonProc_ProcessDaemonContractGroup]",
+                sql: "[gsDaemonContracts_ProcessDaemonContractGroup]",
                 param: new
                 {
                     DaemonContractIds = daemonContractIds,
                     DaemonId = daemonId,
+                    DaemonContractGroupId = daemonContractGroupId,
                     ZoneName = zoneName
                 },
+                transaction: _context.Transaction,
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+
+        public async Task<IEnumerable<DaemonLatencyRecord>> GetLatencyRecordsForTransformableContracts()
+        {
+            return await _context.Connection.QueryAsync<DaemonLatencyRecord>(
+                sql: "[gsDaemonLatencyRecords_GetLatencyRecordsForTransformableContracts]",
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }

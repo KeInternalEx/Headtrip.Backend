@@ -17,7 +17,7 @@ BEGIN
 	WHERE
 		TargetDaemonId IS NULL AND
 		TargetChannelId IS NULL AND
-		ZoneName in (SELECT ZoneName FROM DaemonClaims);
+		IsProcessing = 0;
 
 END
 

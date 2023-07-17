@@ -11,16 +11,18 @@ namespace Headtrip.Repositories.Abstract
     {
         Task<Daemon> GetOrCreateDaemonByNickname(string nickname);
         Task<Daemon> GetDaemonByDaemonId(Guid daemonId);
-
+        Task<IEnumerable<Daemon>> GetAllDaemons();
 
         Task<IEnumerable<DaemonContract>> BeginProcessingPendingContracts(Guid daemonId);
+        Task EndProcessingPendingContracts(Guid daemonId);
+
+
         Task<IEnumerable<DaemonContract>> GetAllTransformableDaemonContracts();
 
-        Task<IEnumerable<DaemonClaim>> CreateClaimsForTransformableContracts(Guid daemonId, int numberOfFreeInstances);
-        Task<IEnumerable<DaemonClaim>> GetAllDaemonClaims();
 
+        Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, Guid daemonContractGroupId, string zoneName);
 
-        Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, string zoneName);
+        Task<IEnumerable<DaemonLatencyRecord>> GetLatencyRecordsForTransformableContracts();
 
     }
 }

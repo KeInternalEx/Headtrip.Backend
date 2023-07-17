@@ -5,10 +5,10 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsDaemon_GetDaemonByDaemonId];
+DROP PROCEDURE IF EXISTS [dbo].[gsDaemons_GetDaemonByDaemonId];
 GO
 
-CREATE PROCEDURE [dbo].[gsDaemon_GetDaemonByDaemonId]
+CREATE PROCEDURE [dbo].[gsDaemons_GetDaemonByDaemonId]
 	@DaemonId UniqueIdentifier
 AS
 BEGIN

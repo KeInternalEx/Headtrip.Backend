@@ -5,10 +5,10 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsDaemon_GetOrCreateDaemonByNickname];
+DROP PROCEDURE IF EXISTS [dbo].[gsDaemons_GetOrCreateDaemonByNickname];
 GO
 
-CREATE PROCEDURE [dbo].[gsDaemon_GetOrCreateDaemonByNickname]
+CREATE PROCEDURE [dbo].[gsDaemons_GetOrCreateDaemonByNickname]
 	@Nickname nvarchar(max)
 AS
 BEGIN
