@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Daemon
 {
-    public class BeginProcessingPendingDaemonContractsResult : ServiceCallResult
+    public class BeginProcessingPendingDaemonContractsResult : AServiceCallResult
     {
         public List<DaemonContract>? Contracts { get; set; }
         public List<Channel>? Channels { get; set; }

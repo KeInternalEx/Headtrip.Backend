@@ -7,7 +7,7 @@ using Headtrip.Models.Abstract;
 
 namespace Headtrip.Models.User
 {
-    public class UserCreationResult : ServiceCallResult
+    public class UserCreationResult : AServiceCallResult
     {
         public string? EmailConfirmationParameter { get; set; }
         public User? User { get; set; }

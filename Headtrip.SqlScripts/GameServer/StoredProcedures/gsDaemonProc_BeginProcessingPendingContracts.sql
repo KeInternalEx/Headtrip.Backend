@@ -5,10 +5,10 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsDaemonContracts_BeginProcessingPendingContracts]
+DROP PROCEDURE IF EXISTS [dbo].[gsDaemonProc_BeginProcessingPendingContracts]
 GO
 
-CREATE PROCEDURE [dbo].[gsDaemonContracts_BeginProcessingPendingContracts]
+CREATE PROCEDURE [dbo].[gsDaemonProc_BeginProcessingPendingContracts]
 	@DaemonId UniqueIdentifier
 AS
 BEGIN

@@ -1,5 +1,7 @@
 ﻿
 using Headtrip.Daemon.Models;
+using Headtrip.Daemon.Services.Abstract;
+using Headtrip.Daemon.State.Abstract;
 using Headtrip.Daemon.Tasks.Abstract;
 using Headtrip.GameServerContext;
 using Headtrip.Services.Abstract;
@@ -15,14 +17,17 @@ namespace Headtrip.Daemon.Tasks
     public class ServerCreationTask : IDaemonTask
     {
         private readonly ILogging<HeadtripGameServerContext> _logging;
-        private readonly IDaemonService _daemonService;
+        private readonly IDaemonState _daemonState;
+        private readonly IDaemonTaskService _daemonService;
 
 
         public ServerCreationTask(
             ILogging<HeadtripGameServerContext> logging, 
-            IDaemonService daemonService)
+            IDaemonState daemonState,
+            IDaemonTaskService daemonService)
         {
             _logging = logging;
+            _daemonState = daemonState;
             _daemonService = daemonService;
         }
 
@@ -30,6 +35,10 @@ namespace Headtrip.Daemon.Tasks
 
         public async Task<DaemonTaskResult> Execute()
         {
+            
+
+
+
             // var claims = await 
 
 

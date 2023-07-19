@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Authentication.Models
 {
-    public class LoginResult : ServiceCallResult
+    public class LoginResult : AServiceCallResult
     {
         public string? Token { get; set; }
         public DateTime Expiration { get; set; }

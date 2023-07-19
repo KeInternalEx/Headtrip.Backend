@@ -28,9 +28,12 @@ namespace Headtrip.GameServerContext
 
         public void CommitTransaction()
         {
-            Transaction?.Commit();
-            Transaction?.Dispose();
-            Transaction = null;
+            if (Transaction != null)
+            {
+                Transaction?.Commit();
+                Transaction?.Dispose();
+                Transaction = null;
+            }
         }
 
         public void Dispose()
@@ -46,9 +49,12 @@ namespace Headtrip.GameServerContext
 
         public void RollbackTransaction()
         {
-            Transaction?.Rollback();
-            Transaction?.Dispose();
-            Transaction = null;
+            if (Transaction != null)
+            {
+                Transaction?.Rollback();
+                Transaction?.Dispose();
+                Transaction = null;
+            }
         }
     }
 }

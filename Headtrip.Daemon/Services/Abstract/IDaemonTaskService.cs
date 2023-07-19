@@ -1,4 +1,5 @@
-﻿using Headtrip.Models.Abstract;
+﻿using Headtrip.Models;
+using Headtrip.Models.Abstract;
 using Headtrip.Models.Daemon;
 using Headtrip.Models.Instance;
 using System;
@@ -7,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Services.Abstract
+namespace Headtrip.Daemon.Services.Abstract
 {
-    public interface IDaemonService
+    public interface IDaemonTaskService
     {
 
         /// <summary>
@@ -27,5 +28,9 @@ namespace Headtrip.Services.Abstract
         /// <param name="daemonContractGroups"></param>
         /// <returns></returns>
         Task<ServiceCallResult> ProcessDaemonContractGroups(List<DaemonContractGroup> daemonContractGroups);
+
+
+
+        Task<ServiceCallResult> ProcessPendingDaemonContracts();
     }
 }

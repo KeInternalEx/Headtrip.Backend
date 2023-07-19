@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Models.User
+namespace Headtrip.Models
 {
-    public class UserIdDecryptionResult : AServiceCallResult
+    public class ServiceCallResult : AServiceCallResult
     {
-        public Guid UserId { get; set; }
     }
 }

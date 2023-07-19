@@ -194,7 +194,7 @@ namespace Headtrip.Services
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 

@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Headtrip.IoC\Headtrip.WebApiInitialization.csproj" />
     <ProjectReference Include="..\Headtrip.Models\Headtrip.Models.csproj" />
+    <ProjectReference Include="..\Headtrip.WebApiInitialization\Headtrip.WebApiInitialization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

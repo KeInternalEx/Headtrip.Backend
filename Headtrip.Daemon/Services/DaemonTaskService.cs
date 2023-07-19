@@ -1,4 +1,7 @@
-﻿using Headtrip.GameServerContext;
+﻿using Headtrip.Daemon.Services.Abstract;
+using Headtrip.Daemon.State.Abstract;
+using Headtrip.GameServerContext;
+using Headtrip.Models;
 using Headtrip.Models.Abstract;
 using Headtrip.Models.Daemon;
 using Headtrip.Models.Instance;
@@ -9,9 +12,9 @@ using System.IO;
 using System.Runtime.ConstrainedExecution;
 using System.Text.RegularExpressions;
 
-namespace Headtrip.Services
+namespace Headtrip.Daemon.Services
 {
-    public class DaemonService : IDaemonService
+    public class DaemonTaskService : IDaemonTaskService
     {
 
         public static readonly float SERVER_LATENCY_WORST_QUALITY = 99999;
@@ -31,33 +34,78 @@ namespace Headtrip.Services
 
 
         private readonly ILogging<HeadtripGameServerContext> _logging;
+        private readonly IDaemonState _daemonState;
         private readonly IDaemonRepository _daemonRepository;
         private readonly IChannelRepository _channelRepository;
         private readonly IZoneRepository _zoneRepository;
 
         private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;
 
-        public DaemonService(
+        public DaemonTaskService(
             ILogging<HeadtripGameServerContext> logging,
+            IDaemonState daemonState,
             IDaemonRepository daemonRepository,
             IChannelRepository channelRepository,
             IZoneRepository zoneRepository,
             IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork)
         {
             _logging = logging;
+            _daemonState = daemonState;
             _daemonRepository = daemonRepository;
             _channelRepository = channelRepository;
             _zoneRepository = zoneRepository;
             _gsUnitOfWork = gsUnitOfWork;
         }
 
+        /// <summary>
+        /// Checks if the daemon state is initialized and creates a default instance of the passed AServiceCallResult inheriting type
+        /// </summary>
+        /// <typeparam name="T">The type of AServiceCallResult to create.</typeparam>
+        /// <param name="result">Gets initialized to a default instance of the passed typeparam.
+        /// If the method call returns false, the object is initialized with a status message explaining that the daemon state
+        /// is uninitialized.</param>
+        /// <returns>
+        /// true if the daemon state has been initialized
+        /// </returns>
+        private bool CreateResultAndCheckDaemonState<T>(out T result) where T: AServiceCallResult, new()
+        {
+            if (!_daemonState.IsReady())
+            {
+                result = new T
+                {
+                    IsSuccessful = false,
+                    Status = "Daemon State is uninitialized"
+                };
+
+                return false;
+            }
+
+            result = new T
+            {
+                IsSuccessful = false,
+                Status = string.Empty
+            };
+
+            return true;
+        }
+
+
         public async Task<GetDaemonContractGroupsResult> GetDaemonContractGroups()
         {
-            var result = new GetDaemonContractGroupsResult {
-                IsSuccessful = false,
-                Status = string.Empty,
-                ContractGroups = new List<DaemonContractGroup>()
-            };
+
+            if (!CreateResultAndCheckDaemonState(out GetDaemonContractGroupsResult result))
+                return result;
+
+            if (!_daemonState.IsSuperDaemon()!.Value)
+            {
+                result.IsSuccessful = false;
+                result.Status = "IDaemonTaskService::GetDaemonContractGroups cannot be called from a non super daemon";
+
+                return result;
+            }
+
+            result.ContractGroups = new List<DaemonContractGroup>();
+
 
             try
             {
@@ -328,11 +376,9 @@ namespace Headtrip.Services
             }
             catch (Exception ex)
             {
-                result = ServiceCallResult.BuildForException<GetDaemonContractGroupsResult>(ex);
-
                 _logging.LogException(ex);
 
-                return result;
+                return AServiceCallResult.BuildForException<GetDaemonContractGroupsResult>(ex); ;
             }
             finally
             {
@@ -343,11 +389,7 @@ namespace Headtrip.Services
 
         public async Task<ServiceCallResult> ProcessDaemonContractGroups(List<DaemonContractGroup> daemonContractGroups)
         {
-            var result = new ServiceCallResult
-            {
-                IsSuccessful = false,
-                Status = string.Empty
-            };
+            var result = new ServiceCallResult { };
 
             try
             {
@@ -372,9 +414,7 @@ namespace Headtrip.Services
             {
                 _logging.LogException(ex);
 
-                result = ServiceCallResult.BuildForException<ServiceCallResult>(ex);
-
-                return result;
+                return AServiceCallResult.BuildForException<ServiceCallResult>(ex);
             }
             finally
             {
@@ -383,26 +423,62 @@ namespace Headtrip.Services
         }
 
 
-        public async Task<ServiceCallResult> BeginProcessingTransformedDaemonContracts(Guid daemonId)
+        public async Task<ServiceCallResult> BeginProcessingTransformedDaemonContracts()
         {
             // TODO: NEED TO GROUP CONTRACTS ON THEIR CONTRACT GROUP ID FIELD
             // TODO: NEED TO MAKE A SERVER INSTANCE FOR EACH CONTRACT GROUP
             // TODO: NEED TO ASSIGN SERVER INSTANCE A CHANNEL ID AND PUT IT INTO THE POOL OF SERVERS
             // TODO: NEED TO UPDATE CONTRACT OBJECTS IN THE DATABASE WITH THE CHANNEL ID
 
+            if (!CreateResultAndCheckDaemonState(out ServiceCallResult result))
+                return result;
 
+            var daemonId = _daemonState.GetDaemonId()!.Value;
+
+            try
+            {
+                _gsUnitOfWork.BeginTransaction();
+
+                var contracts = await _daemonRepository.GetAllTransformedDaemonContracts(daemonId);
+                if (contracts.Count() == 0)
+                {
+                    result.IsSuccessful = true;
+                    result.Status = $"There are currently no transformed contracts for daemonId {daemonId}";
+
+                    return result;
+                }
+
+                var contractsByGroupId = contracts.GroupBy((contract) => contract.DaemonContractId);
+                
+                // TODO: SPIN UP A SERVER FOR EACH GROUP
+                // TODO: CREATE A CHANNEL IN THE DATABASE FOR EACH GROUP
+                // TODO: UPDATE EACH GROUP WITH THE CHANNEL ID
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _logging.LogException(ex);
+
+                return AServiceCallResult.BuildForException<ServiceCallResult>(ex);
+
+            }
+            finally
+            {
+                _gsUnitOfWork.Finalize(result.IsSuccessful);
+            }
 
 
 
         }
 
-        public async Task<BeginProcessingPendingDaemonContractsResult> BeginProcessingPendingDaemonContracts(Guid daemonId)
+        public async Task<ServiceCallResult> ProcessPendingDaemonContracts()
         {
-            var result = new BeginProcessingPendingDaemonContractsResult
-            {
-                IsSuccessful = false,
-                Status = string.Empty
-            };
+            if (!CreateResultAndCheckDaemonState(out ServiceCallResult result))
+                return result;
+
+            var daemonId = _daemonState.GetDaemonId()!.Value;
 
             try
             {
@@ -428,12 +504,25 @@ namespace Headtrip.Services
                 }
 
 
+                // TODO: QUEUE IPC SEND TO UNREAL SERVER INSTANCE
+                //
+
+                foreach (var contract in contractsToProcess)
+                {
+                    var serverInstance = _daemonState.ServersByChannelId[contract.TargetChannelId!.Value];
+                    if (serverInstance == null)
+                        throw new Exception($"Received contract on daemon {daemonId} with invalid channel id {contract.TargetChannelId.Value}");
+
+
+                }
+
+
+
+
+                await _daemonRepository.FinishProcessingPendingContracts(daemonId);
+
                 result.IsSuccessful = true;
-                result.Status = $"Received {contractsToProcess.Count()} contracts to process.";
-
-                result.Contracts = contractsToProcess.ToList();
-                result.Channels = channels.ToList();
-
+                result.Status = $"Successfully processed and removed {contractsToProcess.Count()} completed contracts from the database.";
 
                 return result;
             }
@@ -441,38 +530,7 @@ namespace Headtrip.Services
             {
                 _logging.LogException(ex);
 
-                return result;
-            }
-            finally
-            {
-                _gsUnitOfWork.Finalize(result.IsSuccessful);
-            }
-        }
-
-        public async Task<ServiceCallResult> EndProcessingPendingDaemonContracts(Guid daemonId)
-        {
-            var result = new ServiceCallResult
-            {
-                IsSuccessful = false,
-                Status = string.Empty
-            };
-
-            try
-            {
-                _gsUnitOfWork.BeginTransaction();
-                
-                await _daemonRepository.EndProcessingPendingContracts(daemonId);
-
-                result.IsSuccessful = true;
-                result.Status = "Successfully removed completed contracts from the database.";
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logging.LogException(ex);
-
-                return result;
+                return AServiceCallResult.BuildForException<ServiceCallResult>(ex);
             }
             finally
             {

@@ -14,10 +14,11 @@ namespace Headtrip.Repositories.Abstract
         Task<IEnumerable<Daemon>> GetAllDaemons();
 
         Task<IEnumerable<DaemonContract>> BeginProcessingPendingContracts(Guid daemonId);
-        Task EndProcessingPendingContracts(Guid daemonId);
+        Task FinishProcessingPendingContracts(Guid daemonId);
 
 
         Task<IEnumerable<DaemonContract>> GetAllTransformableDaemonContracts();
+        Task<IEnumerable<DaemonContract>> GetAllTransformedDaemonContracts(Guid daemonId);
 
 
         Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, Guid daemonContractGroupId, string zoneName);

@@ -48,7 +48,7 @@ namespace Headtrip.Repositories
         public async Task<IEnumerable<DaemonContract>> BeginProcessingPendingContracts(Guid daemonId)
         {
             return await _context.Connection.QueryAsync<DaemonContract>(
-                sql: "[gsDaemonContracts_BeginProcessingPendingContracts]",
+                sql: "[gsDaemonProc_BeginProcessingPendingContracts]",
                 param: new
                 {
                     DaemonId = daemonId
@@ -57,10 +57,10 @@ namespace Headtrip.Repositories
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task EndProcessingPendingContracts(Guid daemonId)
+        public async Task FinishProcessingPendingContracts(Guid daemonId)
         {
             await _context.Connection.QueryAsync<DaemonContract>(
-                sql: "[gsDaemonContracts_EndProcessingPendingContracts]",
+                sql: "[gsDaemonProc_FinishProcessingPendingContracts]",
                 param: new
                 {
                     DaemonId = daemonId
@@ -83,6 +83,18 @@ namespace Headtrip.Repositories
             return await _context.Connection.QueryAsync<DaemonContract>(
                 sql: "[gsDaemonContracts_GetAllTransformableDaemonContracts]",
                 transaction: _context.Transaction,
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<DaemonContract>> GetAllTransformedDaemonContracts(Guid daemonId)
+        {
+            return await _context.Connection.QueryAsync<DaemonContract>(
+                sql: "[gsDaemonContracts_GetAllTransformedDaemonContracts]",
+                transaction: _context.Transaction,
+                param: new
+                {
+                    DaemonId = daemonId
+                },
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 

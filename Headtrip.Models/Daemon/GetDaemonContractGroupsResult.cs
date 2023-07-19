@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Models.Daemon
 {
-    public class GetDaemonContractGroupsResult : ServiceCallResult
+    public class GetDaemonContractGroupsResult : AServiceCallResult
     {
         public List<DaemonContractGroup>? ContractGroups { get; set; }
     }

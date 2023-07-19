@@ -8,7 +8,7 @@ using Headtrip.Models.Abstract;
 
 namespace Headtrip.Models.Account
 {
-    public class AccountCreationResult : ServiceCallResult
+    public class AccountCreationResult : AServiceCallResult
     {
         public Account? Account { get; set; }
     }

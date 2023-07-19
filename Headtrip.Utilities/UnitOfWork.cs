@@ -38,18 +38,13 @@ namespace Headtrip.Utilities
 
         public void BeginTransaction()
         {
-            try
+            if (_ContextA.Transaction == null &&
+                _ContextB.Transaction == null)
             {
                 _ContextA.BeginTransaction();
                 _ContextB.BeginTransaction();
             }
-            catch (Exception)
-            {
-                _ContextA.RollbackTransaction();
-                _ContextB.RollbackTransaction();
 
-                throw;
-            }
         }
 
         public void CommitTransaction()
@@ -57,8 +52,15 @@ namespace Headtrip.Utilities
             if (_ContextA.Connection.State == ConnectionState.Open &&
                 _ContextB.Connection.State == ConnectionState.Open)
             {
-                _ContextA.CommitTransaction();
-                _ContextB.CommitTransaction();
+                if (_ContextA.Transaction != null &&
+                    _ContextB.Transaction != null)
+                {
+                    _ContextA.CommitTransaction();
+                    _ContextB.CommitTransaction();
+                }
+                else
+                    throw new Exception("One or more transactions were not in an open state, unable to commit transaction.");
+
             }
             else
                 throw new Exception("One or more sockets were closed, unable to commit transaction.");
@@ -75,8 +77,14 @@ namespace Headtrip.Utilities
             if (_ContextA.Connection.State == ConnectionState.Open &&
                 _ContextB.Connection.State == ConnectionState.Open)
             {
-                _ContextA.RollbackTransaction();
-                _ContextB.RollbackTransaction();
+                if (_ContextA.Transaction != null &&
+                    _ContextB.Transaction != null)
+                {
+                    _ContextA.RollbackTransaction();
+                    _ContextB.RollbackTransaction();
+                }
+                else
+                    throw new Exception("One or more transactions were not in an open state, unable to roll back transaction.");
             }
             else
                 throw new Exception("One or more sockets were closed, unable to roll back transaction.");
