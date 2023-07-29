@@ -3,10 +3,11 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using System.Diagnostics;
 
-namespace Headtrip.Daemon
+namespace Headtrip.UeService
 {
     internal class Program
     {
+        /*
         private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
@@ -41,6 +42,8 @@ namespace Headtrip.Daemon
             }
         }
 
+        */
+
         
 
         static void Main(string[] args)
@@ -51,9 +54,9 @@ namespace Headtrip.Daemon
 
 
             // todo: start topshelf service
-            // todo: split on super daemon flag
-            // todo: if we're the super daemon, we run the contract transformation task
-            // todo: if we're not a super daemon, then we manage the server spinning tasks
+            // todo: split on super UeService flag
+            // todo: if we're the super UeService, we run the ServerTransferRequest transformation task
+            // todo: if we're not a super UeService, then we manage the server spinning tasks
 
 
         }

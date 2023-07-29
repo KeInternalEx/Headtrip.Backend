@@ -1,9 +1,9 @@
 ﻿use HeadtripGameServer;
 
 DELETE FROM Zones;
-DELETE FROM DaemonClaims;
-DELETE FROM DaemonContracts;
-DELETE FROM Daemons;
+DELETE FROM UeServiceClaims;
+DELETE FROM UeServiceServerTransferRequests;
+DELETE FROM UeServices;
 
 INSERT INTO Zones (
 	ZoneName,
@@ -42,12 +42,12 @@ HardPlayerCap) VALUES
 GO
 
 
-INSERT INTO DaemonContracts(
-	DaemonContractId,
+INSERT INTO UeServiceServerTransferRequests(
+	UeServiceServerTransferRequestId,
 	CurrentChannelId,
-	CurrentDaemonId,
+	CurrentUeServiceId,
 	TargetChannelId,
-	TargetDaemonId,
+	TargetUeServiceId,
 	AccountId,
 	PartyId,
 	ZoneName)
@@ -63,12 +63,12 @@ newid(),
 GO 230
 
 
-INSERT INTO DaemonContracts(
-	DaemonContractId,
+INSERT INTO UeServiceServerTransferRequests(
+	UeServiceServerTransferRequestId,
 	CurrentChannelId,
-	CurrentDaemonId,
+	CurrentUeServiceId,
 	TargetChannelId,
-	TargetDaemonId,
+	TargetUeServiceId,
 	AccountId,
 	PartyId,
 	ZoneName)
@@ -83,12 +83,12 @@ newid(),
 	'TestZone2');
 GO 171
 
-INSERT INTO DaemonContracts(
-	DaemonContractId,
+INSERT INTO UeServiceServerTransferRequests(
+	UeServiceServerTransferRequestId,
 	CurrentChannelId,
-	CurrentDaemonId,
+	CurrentUeServiceId,
 	TargetChannelId,
-	TargetDaemonId,
+	TargetUeServiceId,
 	AccountId,
 	PartyId,
 	ZoneName)

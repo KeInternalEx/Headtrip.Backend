@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Models", "Headtrip.Models\Headtrip.Models.csproj", "{23676431-1F46-44CF-B5F4-B46A9611E058}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Objects", "Headtrip.Models\Headtrip.Objects.csproj", "{23676431-1F46-44CF-B5F4-B46A9611E058}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Repositories", "Headtrip.Repositories\Headtrip.Repositories.csproj", "{FA4EB427-CE76-4DB1-BB34-2F841412130D}"
 EndProject
@@ -27,7 +27,7 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Headtrip.Website", "Headtri
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.WebApiInitialization", "Headtrip.WebApiInitialization\Headtrip.WebApiInitialization.csproj", "{4FC0E514-2D3A-435E-956F-3A42D28A54C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Daemon", "Headtrip.Daemon\Headtrip.Daemon.csproj", "{790F005F-8B4F-4B6E-BE40-7FA349663524}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.UeService", "Headtrip.Daemon\Headtrip.UeService.csproj", "{790F005F-8B4F-4B6E-BE40-7FA349663524}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.SqlScripts", "Headtrip.SqlScripts\Headtrip.SqlScripts.csproj", "{749B19CA-5E04-46BD-8FE8-7AB64F2F4192}"
 EndProject

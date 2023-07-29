@@ -1,5 +1,5 @@
 ﻿using Headtrip.GameServerContext;
-using Headtrip.Models.Instance;
+using Headtrip.Objects.Instance;
 using Headtrip.Utilities.Abstract;
 using System;
 using System.Collections.Generic;

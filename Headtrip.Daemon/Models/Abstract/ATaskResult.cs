@@ -1,4 +1,4 @@
-﻿using Headtrip.Models.Abstract;
+﻿using Headtrip.Objects.Abstract.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Daemon.Models.Abstract
+namespace Headtrip.UeService.Models.Abstract
 {
     public abstract class ATaskResult : AServiceCallResult
     {
@@ -24,7 +24,7 @@ namespace Headtrip.Daemon.Models.Abstract
         public void CalculateTimeSpent() =>
             TimeSpent = DateTime.Now - _creationTime;
 
-        public new ATaskResult BuildForException(Exception exception)
+        public ATaskResult BuildForException(Exception exception)
         {
             Exception = exception;
             Status = exception.Message;

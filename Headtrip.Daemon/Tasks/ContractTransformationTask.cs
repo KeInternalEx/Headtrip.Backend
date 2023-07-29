@@ -1,6 +1,7 @@
 ﻿
-using Headtrip.Daemon.Models;
-using Headtrip.Daemon.Tasks.Abstract;
+using Headtrip.UeService.Models;
+using Headtrip.UeService.Services.Abstract;
+using Headtrip.UeService.Tasks.Abstract;
 using Headtrip.GameServerContext;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
@@ -10,28 +11,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Daemon.Tasks
+namespace Headtrip.UeService.Tasks
 {
-    public class ContractTansformationTask : IDaemonTask
+    public sealed class ServerTransferRequestTansformationTask : IUeServiceTask
     {
         private readonly ILogging<HeadtripGameServerContext> _logging;
-        private readonly IDaemonService _daemonService;
+        private readonly IUeServiceTaskService _UeServiceTaskService;
 
 
-        public ContractTansformationTask(
-            ILogging<HeadtripGameServerContext> logging, 
-            IDaemonService daemonService)
+        public ServerTransferRequestTansformationTask(
+            ILogging<HeadtripGameServerContext> logging,
+            IUeServiceTaskService UeServiceTaskService)
         {
             _logging = logging;
-            _daemonService = daemonService;
+            _UeServiceTaskService = UeServiceTaskService;
         }
 
 
 
-        public async Task<DaemonTaskResult> Execute()
+        public async Task<UeServiceTaskResult> Execute()
         {
-            var getDaemonContractGroupsResult = await _daemonService.GetDaemonContractGroups();
-            if (getDaemonContractGroupsResult.IsSuccessful && getDaemonContractGroupsResult.ContractGroups.Count > 0)
+            var getUeServiceServerTransferRequestGroupsResult = await _UeServiceTaskService.GetUeServiceServerTransferRequestGroups();
+            if (getUeServiceServerTransferRequestGroupsResult.IsSuccessful && getUeServiceServerTransferRequestGroupsResult.ServerTransferRequestGroups.Count > 0)
             {
 
 

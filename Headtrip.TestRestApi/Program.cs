@@ -1,4 +1,6 @@
-﻿namespace Headtrip.TestRestApi
+﻿using Headtrip.UeService.IPCMessages.FromUeService;
+
+namespace Headtrip.TestRestApi
 {
     internal class Program
     {
@@ -8,18 +10,12 @@
         static void Main(string[] args)
         {
 
-            var s = new Stack<string>();
+            var s = new DIPC_CLOSE_INSTANCE();
 
-            s.Push("a");
-            s.Push("b");
+            s = DIPC_CLOSE_INSTANCE.Decode("{\"Type\":\"notreal\"}");
+            // s.Verify();
 
-
-            foreach (var a in s.ToList())
-            {
-                Console.WriteLine(a);
-            }
-
-
+            Console.WriteLine(s.Encode());
 
 
 

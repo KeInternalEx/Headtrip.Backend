@@ -1,5 +1,5 @@
-﻿using Headtrip.Models.Account;
-using Headtrip.Models.User;
+﻿using Headtrip.Objects.Account;
+using Headtrip.Objects.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;

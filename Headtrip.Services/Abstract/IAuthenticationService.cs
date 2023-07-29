@@ -1,5 +1,5 @@
 ﻿using Headtrip.Authentication.Models;
-using Headtrip.Models.User;
+using Headtrip.Objects.User;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;

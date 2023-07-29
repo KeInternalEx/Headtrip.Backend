@@ -1,4 +1,4 @@
-﻿using Headtrip.Models.Instance;
+﻿using Headtrip.Objects.Instance;
 
 namespace Headtrip.GameServer.Models.OverworldInstance
 {

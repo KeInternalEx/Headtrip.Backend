@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Headtrip.GameServerContext;
-using Headtrip.Models.Daemon;
+using Headtrip.Objects.UeService;
 using Headtrip.Repositories.Abstract;
 using Headtrip.Utilities.Abstract;
 using System;
@@ -11,20 +11,20 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Repositories
 {
-    public class DaemonRepository : IDaemonRepository
+    public class UeServiceRepository : IUeServiceRepository
     {
         private IContext<HeadtripGameServerContext> _context;
 
-        public DaemonRepository(
+        public UeServiceRepository(
             IContext<HeadtripGameServerContext> context)
         {
             _context = context;
         }
 
-        public async Task<Daemon> GetOrCreateDaemonByNickname(string nickname)
+        public async Task<MUeService> GetOrCreateUeServiceByNickname(string nickname)
         {
-            return await _context.Connection.QueryFirstOrDefaultAsync<Daemon>(
-                sql: "[gsDaemons_GetOrCreateDaemonByNickname]",
+            return await _context.Connection.QueryFirstOrDefaultAsync<MUeService>(
+                sql: "[gsUeServices_GetOrCreateUeServiceByNickname]",
                 param: new
                 {
                     Nickname = nickname
@@ -33,80 +33,80 @@ namespace Headtrip.Repositories
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task<Daemon> GetDaemonByDaemonId(Guid daemonId)
+        public async Task<MUeService> GetUeServiceByUeServiceId(Guid UeServiceId)
         {
-            return await _context.Connection.QueryFirstOrDefaultAsync<Daemon>(
-                sql: "[gsDaemons_GetDaemonByDaemonId]",
+            return await _context.Connection.QueryFirstOrDefaultAsync<MUeService>(
+                sql: "[gsUeServices_GetUeServiceByUeServiceId]",
                 param: new
                 {
-                    DaemonId = daemonId
+                    UeServiceId = UeServiceId
                 },
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<DaemonContract>> BeginProcessingPendingContracts(Guid daemonId)
+        public async Task<IEnumerable<MUeServiceServerTransferRequest>> BeginProcessingPendingServerTransferRequests(Guid UeServiceId)
         {
-            return await _context.Connection.QueryAsync<DaemonContract>(
-                sql: "[gsDaemonProc_BeginProcessingPendingContracts]",
+            return await _context.Connection.QueryAsync<MUeServiceServerTransferRequest>(
+                sql: "[gsUeServiceProc_BeginProcessingPendingServerTransferRequests]",
                 param: new
                 {
-                    DaemonId = daemonId
+                    UeServiceId = UeServiceId
                 },
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task FinishProcessingPendingContracts(Guid daemonId)
+        public async Task FinishProcessingPendingServerTransferRequests(Guid UeServiceId)
         {
-            await _context.Connection.QueryAsync<DaemonContract>(
-                sql: "[gsDaemonProc_FinishProcessingPendingContracts]",
+            await _context.Connection.QueryAsync<MUeServiceServerTransferRequest>(
+                sql: "[gsUeServiceProc_FinishProcessingPendingServerTransferRequests]",
                 param: new
                 {
-                    DaemonId = daemonId
+                    UeServiceId = UeServiceId
                 },
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<Daemon>> GetAllDaemons()
+        public async Task<IEnumerable<MUeService>> GetAllUeServices()
         {
-            return await _context.Connection.QueryAsync<Daemon>(
-                sql: "[gsDaemons_GetAllDaemons",
+            return await _context.Connection.QueryAsync<MUeService>(
+                sql: "[gsUeServices_GetAllUeServices",
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
 
-        public async Task<IEnumerable<DaemonContract>> GetAllTransformableDaemonContracts()
+        public async Task<IEnumerable<MUeServiceServerTransferRequest>> GetAllTransformableUeServiceServerTransferRequests()
         {
-            return await _context.Connection.QueryAsync<DaemonContract>(
-                sql: "[gsDaemonContracts_GetAllTransformableDaemonContracts]",
+            return await _context.Connection.QueryAsync<MUeServiceServerTransferRequest>(
+                sql: "[gsUeServiceServerTransferRequests_GetAllTransformableUeServiceServerTransferRequests]",
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<DaemonContract>> GetAllTransformedDaemonContracts(Guid daemonId)
+        public async Task<IEnumerable<MUeServiceServerTransferRequest>> GetAllTransformedUeServiceServerTransferRequests(Guid UeServiceId)
         {
-            return await _context.Connection.QueryAsync<DaemonContract>(
-                sql: "[gsDaemonContracts_GetAllTransformedDaemonContracts]",
+            return await _context.Connection.QueryAsync<MUeServiceServerTransferRequest>(
+                sql: "[gsUeServiceServerTransferRequests_GetAllTransformedUeServiceServerTransferRequests]",
                 transaction: _context.Transaction,
                 param: new
                 {
-                    DaemonId = daemonId
+                    UeServiceId = UeServiceId
                 },
                 commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public async Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, Guid daemonContractGroupId, string zoneName)
+        public async Task ProcessUeServiceServerTransferRequestGroup(string UeServiceServerTransferRequestIds, Guid UeServiceId, Guid UeServiceServerTransferRequestGroupId, string zoneName)
         {
             await _context.Connection.ExecuteAsync(
-                sql: "[gsDaemonContracts_ProcessDaemonContractGroup]",
+                sql: "[gsUeServiceServerTransferRequests_ProcessUeServiceServerTransferRequestGroup]",
                 param: new
                 {
-                    DaemonContractIds = daemonContractIds,
-                    DaemonId = daemonId,
-                    DaemonContractGroupId = daemonContractGroupId,
+                    UeServiceServerTransferRequestIds = UeServiceServerTransferRequestIds,
+                    UeServiceId = UeServiceId,
+                    UeServiceServerTransferRequestGroupId = UeServiceServerTransferRequestGroupId,
                     ZoneName = zoneName
                 },
                 transaction: _context.Transaction,
@@ -114,10 +114,10 @@ namespace Headtrip.Repositories
         }
 
 
-        public async Task<IEnumerable<DaemonLatencyRecord>> GetLatencyRecordsForTransformableContracts()
+        public async Task<IEnumerable<mUeServiceLatencyRecord>> GetLatencyRecordsForTransformableServerTransferRequests()
         {
-            return await _context.Connection.QueryAsync<DaemonLatencyRecord>(
-                sql: "[gsDaemonLatencyRecords_GetLatencyRecordsForTransformableContracts]",
+            return await _context.Connection.QueryAsync<mUeServiceLatencyRecord>(
+                sql: "[gsUeServiceLatencyRecords_GetLatencyRecordsForTransformableServerTransferRequests]",
                 transaction: _context.Transaction,
                 commandType: System.Data.CommandType.StoredProcedure);
         }

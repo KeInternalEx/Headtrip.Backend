@@ -1,9 +1,9 @@
 ﻿using BCrypt.Net;
 using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
-using Headtrip.Models.Abstract;
-using Headtrip.Models.Account;
-using Headtrip.Models.User;
+using Headtrip.Objects.Abstract.Results;
+using Headtrip.Objects.Account;
+using Headtrip.Objects.User;
 using Headtrip.Repositories.Abstract;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
@@ -105,7 +105,7 @@ namespace Headtrip.Services
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<UserIdDecryptionResult>(ex);
+                return AServiceCallResult.BuildForException<UserIdDecryptionResult>(ex);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Headtrip.Services
                 _combinedUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
-                return ServiceCallResult.BuildForException<AccountCreationResult>(ex);
+                return AServiceCallResult.BuildForException<AccountCreationResult>(ex);
             }
         }
 
@@ -197,7 +197,7 @@ namespace Headtrip.Services
                 _lsUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
-                return ServiceCallResult.BuildForException<UserCreationResult>(ex);
+                return AServiceCallResult.BuildForException<UserCreationResult>(ex);
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Headtrip.LoginServerContext;
-using Headtrip.Models.User;
+using Headtrip.Objects.User;
 using Headtrip.Repositories.Abstract;
 using Headtrip.Utilities.Abstract;
 using System;

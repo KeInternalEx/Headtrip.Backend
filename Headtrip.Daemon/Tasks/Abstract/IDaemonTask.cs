@@ -1,14 +1,14 @@
-﻿using Headtrip.Daemon.Models;
+﻿using Headtrip.UeService.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Daemon.Tasks.Abstract
+namespace Headtrip.UeService.Tasks.Abstract
 {
-    public interface IDaemonTask
+    public interface IUeServiceTask
     {
-        Task<DaemonTaskResult> Execute();
+        Task<UeServiceTaskResult> Execute();
     }
 }

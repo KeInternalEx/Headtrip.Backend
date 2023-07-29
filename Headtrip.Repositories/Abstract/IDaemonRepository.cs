@@ -1,4 +1,4 @@
-﻿using Headtrip.Models.Daemon;
+﻿using Headtrip.Objects.UeService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Repositories.Abstract
 {
-    public interface IDaemonRepository
+    public interface IUeServiceRepository
     {
-        Task<Daemon> GetOrCreateDaemonByNickname(string nickname);
-        Task<Daemon> GetDaemonByDaemonId(Guid daemonId);
-        Task<IEnumerable<Daemon>> GetAllDaemons();
+        Task<MUeService> GetOrCreateUeServiceByNickname(string nickname);
+        Task<MUeService> GetUeServiceByUeServiceId(Guid UeServiceId);
+        Task<IEnumerable<MUeService>> GetAllUeServices();
 
-        Task<IEnumerable<DaemonContract>> BeginProcessingPendingContracts(Guid daemonId);
-        Task FinishProcessingPendingContracts(Guid daemonId);
-
-
-        Task<IEnumerable<DaemonContract>> GetAllTransformableDaemonContracts();
-        Task<IEnumerable<DaemonContract>> GetAllTransformedDaemonContracts(Guid daemonId);
+        Task<IEnumerable<MUeServiceServerTransferRequest>> BeginProcessingPendingServerTransferRequests(Guid UeServiceId);
+        Task FinishProcessingPendingServerTransferRequests(Guid UeServiceId);
 
 
-        Task ProcessDaemonContractGroup(string daemonContractIds, Guid daemonId, Guid daemonContractGroupId, string zoneName);
+        Task<IEnumerable<MUeServiceServerTransferRequest>> GetAllTransformableUeServiceServerTransferRequests();
+        Task<IEnumerable<MUeServiceServerTransferRequest>> GetAllTransformedUeServiceServerTransferRequests(Guid UeServiceId);
 
-        Task<IEnumerable<DaemonLatencyRecord>> GetLatencyRecordsForTransformableContracts();
+
+        Task ProcessUeServiceServerTransferRequestGroup(string UeServiceServerTransferRequestIds, Guid UeServiceId, Guid UeServiceServerTransferRequestGroupId, string zoneName);
+
+        Task<IEnumerable<mUeServiceLatencyRecord>> GetLatencyRecordsForTransformableServerTransferRequests();
 
     }
 }

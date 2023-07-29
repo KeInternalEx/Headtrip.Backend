@@ -1,0 +1,17 @@
+﻿USE HeadtripGameServer;
+
+DROP TABLE IF EXISTS UeServices;
+GO
+CREATE TABLE UeServices (
+	UeServiceId UNIQUEIDENTIFIER NOT NULL,
+	Nickname NVARCHAR(MAX) NOT NULL,
+	ServerAddress NVARCHAR(MAX) NOT NULL,
+	NumberOfFreeEntries INT NOT NULL DEFAULT 0,
+	IsSuperUeService BIT NOT NULL DEFAULT 0
+
+
+	CONSTRAINT [PK_UeServices_UeServiceId] PRIMARY KEY NONCLUSTERED (UeServiceId)
+);
+GO
+
+

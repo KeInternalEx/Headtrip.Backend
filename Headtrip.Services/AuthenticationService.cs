@@ -2,8 +2,8 @@
 using Headtrip.Authentication.Models;
 using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
-using Headtrip.Models.Abstract;
-using Headtrip.Models.User;
+using Headtrip.Objects.Abstract.Results;
+using Headtrip.Objects.User;
 using Headtrip.Repositories.Abstract;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
@@ -213,7 +213,7 @@ namespace Headtrip.Services
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 
@@ -233,7 +233,7 @@ namespace Headtrip.Services
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 
@@ -252,7 +252,7 @@ namespace Headtrip.Services
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return ServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<LoginResult>(ex);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using Headtrip.Models.Instance;
+﻿using Headtrip.Objects.Instance;
 using System;
 using System.Collections.Generic;
 using System.Linq;

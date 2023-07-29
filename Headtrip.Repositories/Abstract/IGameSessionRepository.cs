@@ -1,4 +1,4 @@
-﻿using Headtrip.Models.GameSession;
+﻿using Headtrip.Objects.GameSession;
 using System;
 using System.Collections.Generic;
 using System.Linq;

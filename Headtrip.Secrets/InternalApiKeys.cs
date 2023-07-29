@@ -15,13 +15,13 @@ namespace Headtrip.Secrets
             }
         }
 
-        public static string? UnrealDaemonApiKey
+        public static string? UnrealUeServiceApiKey
         {
             get
             {
-                var result = ConfigurationManager.AppSettings["UnrealDaemonApiKey"];
+                var result = ConfigurationManager.AppSettings["UnrealUeServiceApiKey"];
                 if (result == null)
-                    throw new Exception("UnrealDaemonApiKey MISSING FROM CONFIGURATION FILE");
+                    throw new Exception("UnrealUeServiceApiKey MISSING FROM CONFIGURATION FILE");
 
                 return result;
             }

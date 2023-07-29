@@ -1,6 +1,6 @@
 ﻿using Headtrip.LoginServer.Models;
 using Headtrip.LoginServerContext;
-using Headtrip.Models.User;
+using Headtrip.Objects.User;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
 using Microsoft.AspNetCore.Mvc;

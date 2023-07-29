@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Headtrip.GameServerContext;
-using Headtrip.Models.GameSession;
+using Headtrip.Objects.GameSession;
 using Headtrip.Repositories.Abstract;
 using Headtrip.Utilities.Abstract;
 using System;
