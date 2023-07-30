@@ -12,7 +12,7 @@ namespace Headtrip.Objects.UeService
         public Guid UeServiceId { get; set; }
         public Guid UeServiceServerTransferRequestGroupId { get; set; }
 
-        public List<MUeServiceServerTransferRequest>? ServerTransferRequests { get; set; }
+        public List<MUeServerTransferRequest>? ServerTransferRequests { get; set; }
 
         public byte NumberOfParties { get; set; }
         public byte NumberOfPlayers { get; set; }

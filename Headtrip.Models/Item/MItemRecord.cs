@@ -18,11 +18,20 @@ namespace Headtrip.Objects.Item
         public string Icon { get; set; } = null!;
 
         public int PossibleRarityBitmap { get; set; }
-        
-        public bool Equippable { get; set; }
-        public bool Consumable { get; set; }
 
+
+        // These records will be updated every hour by a service
         public long AveragePrice { get; set; }
+        public long MaximumPrice { get; set; }
+        public long MinimumPrice { get; set; }
+
+
+
+        public bool IsEquippable { get; set; }
+        public bool IsConsumable { get; set; }
+        public bool IsDeprecated { get; set; }
+
+
 
         
     }

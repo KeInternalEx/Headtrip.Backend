@@ -11,16 +11,11 @@ namespace Headtrip.Objects.Account
     {
         public Guid AccountId { get; set; }
         public Guid UserId { get; set; }
-
-
         public DateTime LastLoginTime { get; set; }
-
-        public long TotalPlaytimeMs { get; set; }
-        public long Money { get; set; }
+        public long TotalPlayTimeMs { get; set; }
 
         public bool IsLocked { get; set; }
         public bool IsSuspended { get; set; }
-
 
         public bool IsPendingDeletion { get; set; }
         public DateTime? DateDeleted { get; set; }

@@ -10,7 +10,7 @@ namespace Headtrip.Objects.UeService
 {
     public sealed class RBeginProcessingPendingUeServiceServerTransferRequestsResult : AServiceCallResult
     {
-        public List<MUeServiceServerTransferRequest>? ServerTransferRequests { get; set; }
+        public List<MUeServerTransferRequest>? ServerTransferRequests { get; set; }
         public List<MChannel>? Channels { get; set; }
     }
 }

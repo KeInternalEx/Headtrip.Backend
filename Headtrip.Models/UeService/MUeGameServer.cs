@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Objects.UeService
 {
-    public sealed class MUeServiceGameServerInstance : ADatabaseObject
+    public sealed class MUeGameServer : ADatabaseObject
     {
-        public Guid UeServiceGameServerInstanceId { get; set; }
+        public Guid UeGameServerId { get; set; }
         public Guid UeServiceId { get; set; }
         public string? ConnectionString { get; set; }
         public byte NumberOfPlayersConnected { get; set; }

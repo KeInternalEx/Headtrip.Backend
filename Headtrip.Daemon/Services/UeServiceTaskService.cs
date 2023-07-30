@@ -148,7 +148,7 @@ namespace Headtrip.UeService.Services
                     .Where((zone) => zoneNames.Contains(zone.ZoneName))
                     .ToDictionary((zone) => zone.ZoneName!, (zone) => zone);
 
-                var ServerTransferRequestsByZoneName = zoneNames.ToDictionary((zoneName) => zoneName!, (zoneName) => new List<MUeServiceServerTransferRequest>());
+                var ServerTransferRequestsByZoneName = zoneNames.ToDictionary((zoneName) => zoneName!, (zoneName) => new List<MUeServerTransferRequest>());
 
                 foreach (var ServerTransferRequest in UeServiceServerTransferRequests)
                     ServerTransferRequestsByZoneName[ServerTransferRequest.ZoneName].Add(ServerTransferRequest);
@@ -166,7 +166,7 @@ namespace Headtrip.UeService.Services
                     var ServerTransferRequests = ServerTransferRequestsByZoneName[zoneName];
 
                     var ServerTransferRequestsWithParties = ServerTransferRequests.Where((ServerTransferRequest) => ServerTransferRequest.PartyId.HasValue);
-                    var ServerTransferRequestsByPartyId = ServerTransferRequestsWithParties.ToDictionary((ServerTransferRequest) => ServerTransferRequest.PartyId!.Value, (ServerTransferRequest) => new List<MUeServiceServerTransferRequest>());
+                    var ServerTransferRequestsByPartyId = ServerTransferRequestsWithParties.ToDictionary((ServerTransferRequest) => ServerTransferRequest.PartyId!.Value, (ServerTransferRequest) => new List<MUeServerTransferRequest>());
 
                     foreach (var partyServerTransferRequest in ServerTransferRequestsWithParties)
                         ServerTransferRequestsByPartyId[partyServerTransferRequest.PartyId!.Value].Add(partyServerTransferRequest);
@@ -274,7 +274,7 @@ namespace Headtrip.UeService.Services
                     }
 
                     // Parties have been assigned, assign individual ServerTransferRequests now
-                    var remainingServerTransferRequests = new Stack<MUeServiceServerTransferRequest>(ServerTransferRequests);
+                    var remainingServerTransferRequests = new Stack<MUeServerTransferRequest>(ServerTransferRequests);
 
                     while (remainingServerTransferRequests.Count > 0)
                     {
@@ -333,7 +333,7 @@ namespace Headtrip.UeService.Services
                                 // Create the new ServerTransferRequest group for the target UeService
                                 var newServerTransferRequestGroup = new UeServiceServerTransferRequestGroup
                                 {
-                                    ServerTransferRequests = new List<MUeServiceServerTransferRequest>() { currentServerTransferRequest },
+                                    ServerTransferRequests = new List<MUeServerTransferRequest>() { currentServerTransferRequest },
                                     UeServiceId = bestPossibleTarget.UeServiceId,
                                     UeServiceServerTransferRequestGroupId = Guid.NewGuid(),
                                     NumberOfParties = 0,

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Objects.UeService
 {
-    public sealed class MUeServiceServerTransferRequest : ADatabaseObject
+    public sealed class MUeServerTransferRequest : ADatabaseObject
     {
-        public Guid UeServiceServerTransferRequestId { get; set; }
+        public Guid UeServerTransferRequestId { get; set; }
         public Guid CurrentChannelId { get; set; }
         public Guid CurrentUeServiceId { get; set; }
         public Guid? TargetChannelId { get; set; }
