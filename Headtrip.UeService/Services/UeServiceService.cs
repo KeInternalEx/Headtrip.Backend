@@ -1,22 +1,16 @@
 ﻿using Headtrip.UeService.Services.Abstract;
 using Headtrip.UeService.State.Abstract;
 using Headtrip.GameServerContext;
-using Headtrip.Objects;
-using Headtrip.Objects.UeService;
-using Headtrip.Objects.Instance;
-using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
-using System.IO;
-using System.Runtime.ConstrainedExecution;
-using System.Text.RegularExpressions;
-using Headtrip.Objects.Abstract.Results;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Objects.Abstract.Results;
+using Headtrip.UeService.Objects;
+using Headtrip.Objects.UeService;
 
 namespace Headtrip.UeService.Services
 {
-    public sealed class UeServiceTaskService : IUeServiceTaskService
+    public sealed class UeServiceService : IUeServiceService
     {
-
         public static readonly float SERVER_LATENCY_WORST_QUALITY = 99999;
         public static readonly float SERVER_LATENCY_BAD_QUALITY = 100;
         public static readonly float SERVER_LATENCY_AVG_QUALITY = 80;
@@ -32,29 +26,30 @@ namespace Headtrip.UeService.Services
 
 
 
-
-        private readonly ILogging<HeadtripGameServerContext> _logging;
         private readonly IUeServiceState _UeServiceState;
+        private readonly ILogging<HeadtripGameServerContext> _Logging;
+        private readonly IUnitOfWork<HeadtripGameServerContext> _GsUnitOfWork;
+
         private readonly IUeServiceRepository _UeServiceRepository;
-        private readonly IChannelRepository _channelRepository;
-        private readonly IZoneRepository _zoneRepository;
+        private readonly IUeStrRepository _UeStrRepository;
 
-        private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;
 
-        public UeServiceTaskService(
-            ILogging<HeadtripGameServerContext> logging,
+
+        public UeServiceService(
             IUeServiceState UeServiceState,
+            ILogging<HeadtripGameServerContext> Logging,
+            IUnitOfWork<HeadtripGameServerContext> GsUnitOfWork,
             IUeServiceRepository UeServiceRepository,
-            IChannelRepository channelRepository,
-            IZoneRepository zoneRepository,
-            IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork)
+            IUeStrRepository UeStrRepository
+            )
         {
-            _logging = logging;
             _UeServiceState = UeServiceState;
+            _Logging = Logging;
+            _GsUnitOfWork = GsUnitOfWork;
             _UeServiceRepository = UeServiceRepository;
-            _channelRepository = channelRepository;
-            _zoneRepository = zoneRepository;
-            _gsUnitOfWork = gsUnitOfWork;
+            _UeStrRepository = UeStrRepository;
+
+
         }
 
         /// <summary>
@@ -67,14 +62,14 @@ namespace Headtrip.UeService.Services
         /// <returns>
         /// true if the UeService state has been initialized
         /// </returns>
-        private bool CreateResultAndCheckUeServiceState<T>(out T result) where T: AServiceCallResult, new()
+        private bool CreateResultAndCheckUeServiceState<T>(out T result) where T : AServiceCallResult, new()
         {
-            if (!_UeServiceState.IsReady())
+            if (!_ueServiceState.IsReady())
             {
                 result = new T
                 {
                     IsSuccessful = false,
-                    Status = "UeService State is uninitialized"
+                    Status = "UeServiceState is uninitialized"
                 };
 
                 return false;
@@ -90,27 +85,28 @@ namespace Headtrip.UeService.Services
         }
 
 
-        public async Task<RGetUeServiceServerTransferRequestGroupsResult> GetUeServiceServerTransferRequestGroups()
+        public async Task<RCreateServerTransferRequestGroupsResult> CreateServerTransferRequestGroups()
         {
 
-            if (!CreateResultAndCheckUeServiceState(out RGetUeServiceServerTransferRequestGroupsResult result))
+            if (!CreateResultAndCheckUeServiceState(out RCreateServerTransferRequestGroupsResult result))
                 return result;
 
             if (!_UeServiceState.IsSuperUeService()!.Value)
             {
                 result.IsSuccessful = false;
-                result.Status = "IUeServiceTaskService::GetUeServiceServerTransferRequestGroups cannot be called from a non super UeService";
+                result.Status = "IUeServiceService::CreateServerTransferRequestGroups cannot be called from a non super UeService";
 
                 return result;
             }
 
-            result.ServerTransferRequestGroups = new List<UeServiceServerTransferRequestGroup>();
+            result.RequestGroups = new List<TUeServiceServerTransferRequestGroup>();
 
 
             try
             {
-                var UeServices = await _UeServiceRepository.GetAllUeServices();
-                if (UeServices.Count() == 0) {
+                var UeServices = await _UeServiceRepository.ReadAll();
+                if (UeServices.Count() == 0)
+                {
                     result.IsSuccessful = false;
                     result.Status = "There are no active UeServices.";
 
@@ -118,8 +114,8 @@ namespace Headtrip.UeService.Services
                 }
 
 
-                var UeServiceServerTransferRequests = await _UeServiceRepository.GetAllTransformableUeServiceServerTransferRequests();
-                if (UeServiceServerTransferRequests.Count() == 0)
+                var Requests = await _UeStrRepository.ReadWithState(EUeServerTransferRequestState.PendingTransform);
+                if (Requests.Count() == 0)
                 {
                     result.IsSuccessful = true;
                     result.Status = "There are currently no transformable UeService ServerTransferRequests.";
@@ -140,7 +136,7 @@ namespace Headtrip.UeService.Services
 
                 var ServerTransferRequestGroupsByUeServiceId = UeServices.ToDictionary((UeService) => UeService.UeServiceId, (UeService) => new List<UeServiceServerTransferRequestGroup>());
                 var UeServicesByUeServiceId = UeServices.ToDictionary((UeService) => UeService.UeServiceId, (UeService) => UeService);
-                
+
                 var UeServiceLatencyRecordsByAccountId = UeServiceLatencyRecords.ToDictionary((record) => record.AccountId, (record) => new List<mUeServiceLatencyRecord>());
                 var UeServiceLatencyRecordsByUeServiceId = UeServiceLatencyRecords.ToDictionary((record) => record.UeServiceId, (record) => new List<mUeServiceLatencyRecord>());
 
@@ -161,7 +157,7 @@ namespace Headtrip.UeService.Services
 
                 foreach (var zoneName in zoneNames)
                 {
-                    
+
                     var zone = relevantZonesByName[zoneName];
                     var ServerTransferRequests = ServerTransferRequestsByZoneName[zoneName];
 
@@ -217,7 +213,7 @@ namespace Headtrip.UeService.Services
                             var possibleExistingGroupsForLatencyTier = ServerTransferRequestGroupsByUeServiceId
                                 .Where((kv) =>
                                     possibleUeServicesForLatencyTier.Any((UeService) => UeService.UeServiceId == kv.Key) &&
-                                    kv.Value.Any((group) => 
+                                    kv.Value.Any((group) =>
                                         zone.ZoneName == zoneName &&
                                         zone.HardPlayerCap - group.NumberOfPlayers >= party.ServerTransferRequests.Count));
 
@@ -247,7 +243,7 @@ namespace Headtrip.UeService.Services
 
                                 // Remove the ServerTransferRequests referenced by this party so they don't get processed again later
                                 ServerTransferRequests.RemoveAll((ServerTransferRequest) => party.ServerTransferRequests.Any((pc) => pc.UeServiceServerTransferRequestId == ServerTransferRequest.UeServiceServerTransferRequestId));
-                                
+
                                 break; // Party successfully assigned. Break out of the foreach and allow the next party to be popped from the stack
                             }
 
@@ -368,7 +364,7 @@ namespace Headtrip.UeService.Services
 
 
 
-               
+
 
 
                 result.IsSuccessful = true;

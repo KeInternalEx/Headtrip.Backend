@@ -20,13 +20,13 @@ namespace Headtrip.UeService.Tasks
 
         private readonly ILogging<HeadtripGameServerContext> _logging;
         private readonly IUeServiceState _UeServiceState;
-        private readonly IUeServiceTaskService _UeServiceService;
+        private readonly IUeServiceService _UeServiceService;
 
 
         public ServerTransferRequestFulfillmentTask(
             ILogging<HeadtripGameServerContext> logging,
             IUeServiceState UeServiceState,
-            IUeServiceTaskService UeServiceService)
+            IUeServiceService UeServiceService)
         {
             _logging = logging;
             _UeServiceState = UeServiceState;
@@ -34,9 +34,9 @@ namespace Headtrip.UeService.Tasks
         }
 
 
-        public async Task<UeServiceTaskResult> Execute()
+        public async Task<RUeServiceTaskResult> Execute()
         {
-            var result = new UeServiceTaskResult
+            var result = new RUeServiceTaskResult
             {
                 IsSuccessful = false,
                 Status = string.Empty

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Objects.UeService
 {
-    public sealed class UeServiceServerTransferRequestGroup
+    public sealed class TUeServiceServerTransferRequestGroup
     {
         public string? ZoneName { get; set; }
         public Guid UeServiceId { get; set; }

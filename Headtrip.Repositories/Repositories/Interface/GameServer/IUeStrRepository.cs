@@ -12,6 +12,7 @@ namespace Headtrip.Repositories.Repositories.Interface.GameServer
     {
 
 
+        Task<IEnumerable<MUeServerTransferRequest>> ReadWithState(EUeServerTransferRequestState State);
 
     }
 }

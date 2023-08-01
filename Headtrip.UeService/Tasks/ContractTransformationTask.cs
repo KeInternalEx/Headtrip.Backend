@@ -16,12 +16,12 @@ namespace Headtrip.UeService.Tasks
     public sealed class ServerTransferRequestTansformationTask : IUeServiceTask
     {
         private readonly ILogging<HeadtripGameServerContext> _logging;
-        private readonly IUeServiceTaskService _UeServiceTaskService;
+        private readonly IUeServiceService _UeServiceTaskService;
 
 
         public ServerTransferRequestTansformationTask(
             ILogging<HeadtripGameServerContext> logging,
-            IUeServiceTaskService UeServiceTaskService)
+            IUeServiceService UeServiceTaskService)
         {
             _logging = logging;
             _UeServiceTaskService = UeServiceTaskService;
