@@ -1,6 +1,6 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.Account;
-using Headtrip.Repositories.Abstract;
+using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
 using System;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Services
 {
-    public class AccountService : IAccountService
+    public sealed class AccountService : IAccountService
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;

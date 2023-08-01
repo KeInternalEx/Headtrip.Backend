@@ -1,7 +1,5 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
-using Headtrip.Repositories.Abstract;
-using Headtrip.Repositories;
 using Headtrip.Utilities.Abstract;
 using Headtrip.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +12,10 @@ using Headtrip.Services.Abstract;
 using Headtrip.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication;
+using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface.LoginServer;
+using Headtrip.Repositories.Repositories.Implementation.LoginServer;
+using Headtrip.Repositories.Repositories.Implementation.GameServer;
 
 namespace Headtrip.WebApiInitialization
 {

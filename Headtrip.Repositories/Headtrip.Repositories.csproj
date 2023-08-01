@@ -17,7 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Headtrip.GameServerContext\Headtrip.GameServerContext.csproj" />
     <ProjectReference Include="..\Headtrip.LoginServerContext\Headtrip.LoginServerContext.csproj" />
-    <ProjectReference Include="..\Headtrip.Objects\Headtrip.Objects.csproj" />
+    <ProjectReference Include="..\Headtrip.Models\Headtrip.Objects.csproj" />
     <ProjectReference Include="..\Headtrip.Utilities\Headtrip.Utilities.csproj" />
   </ItemGroup>
 

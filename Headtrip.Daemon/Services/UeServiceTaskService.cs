@@ -4,13 +4,13 @@ using Headtrip.GameServerContext;
 using Headtrip.Objects;
 using Headtrip.Objects.UeService;
 using Headtrip.Objects.Instance;
-using Headtrip.Repositories.Abstract;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
 using System.IO;
 using System.Runtime.ConstrainedExecution;
 using System.Text.RegularExpressions;
 using Headtrip.Objects.Abstract.Results;
+using Headtrip.Repositories.Repositories.Interface.GameServer;
 
 namespace Headtrip.UeService.Services
 {

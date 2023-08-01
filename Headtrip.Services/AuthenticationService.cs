@@ -4,7 +4,8 @@ using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.User;
-using Headtrip.Repositories.Abstract;
+using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
@@ -18,7 +19,7 @@ using System.Text;
 
 namespace Headtrip.Services
 {
-    public class AuthenticationService : IAuthenticationService
+    public sealed class AuthenticationService : IAuthenticationService
     {
         private static readonly int EXPIRATION_DAYS_GAMESERVER = 1;
         private static readonly int EXPIRATION_DAYS_WEBSITE = 7;
@@ -49,7 +50,7 @@ namespace Headtrip.Services
         }
 
 
-        private List<Claim> createDefaultClaims(User user)
+        private List<Claim> createDefaultClaims(MUser user)
         {
             return new List<Claim>
             {
@@ -61,7 +62,7 @@ namespace Headtrip.Services
         }
 
    
-        private LoginResult CreateAuthenticationToken(
+        private RLoginResult CreateAuthenticationToken(
             IEnumerable<Claim> claims,
             DateTime expiration)
         {
@@ -95,7 +96,7 @@ namespace Headtrip.Services
                 encryptingCredentials);
 
 
-            return new LoginResult
+            return new RLoginResult
             {
                 IsSuccessful = true,
                 Status = string.Empty,
@@ -106,8 +107,8 @@ namespace Headtrip.Services
 
         }
 
-        private LoginResult LoginUser(
-            User user,
+        private RLoginResult LoginUser(
+            MUser user,
             string password)
         {
 
@@ -125,8 +126,8 @@ namespace Headtrip.Services
         }
 
 
-        private async Task<LoginResult> LoginUserForGameServer(
-            User user,
+        private async Task<RLoginResult> LoginUserForGameServer(
+            MUser user,
             string password)
         {
 
@@ -142,7 +143,7 @@ namespace Headtrip.Services
                 {
                     _logging.LogWarning($"No game server account exists for user {user.Username}");
 
-                    return new LoginResult
+                    return new RLoginResult
                     {
                         IsSuccessful = false,
                         Status = $"No game server account exists for user {user.Username}",
@@ -158,7 +159,7 @@ namespace Headtrip.Services
                 {
                     _logging.LogWarning($"Unable to query or create a game session ID for user {user.Username}.");
 
-                    return new LoginResult
+                    return new RLoginResult
                     {
                         IsSuccessful = false,
                         Status = $"Unable to query or create a game session ID for user {user.Username}."
@@ -179,7 +180,7 @@ namespace Headtrip.Services
             throw new Exception($"Game Server Authentication failed for user {user.Username}");
         }
 
-        public async Task<LoginResult> LoginUserByUsername(
+        public async Task<RLoginResult> LoginUserByUsername(
             string username,
             string password)
         {
@@ -187,18 +188,18 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByUsername(username);
                 if (user == null)
-                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
+                    return new RLoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
 
                 return LoginUser(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return AServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<RLoginResult>(ex);
             }
         }
 
-        public async Task<LoginResult> LoginUserByEmail(
+        public async Task<RLoginResult> LoginUserByEmail(
             string email,
             string password)
         {
@@ -206,19 +207,19 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByEmail(email);
                 if (user == null)
-                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
+                    return new RLoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
 
                 return LoginUser(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return AServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<RLoginResult>(ex);
             }
         }
 
 
-        public async Task<LoginResult> LoginUserByUsernameForGameServer(
+        public async Task<RLoginResult> LoginUserByUsernameForGameServer(
             string username,
             string password)
         {
@@ -226,18 +227,18 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByUsername(username);
                 if (user == null)
-                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
+                    return new RLoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
 
                 return await LoginUserForGameServer(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return AServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<RLoginResult>(ex);
             }
         }
 
-        public async Task<LoginResult> LoginUserByEmailForGameServer(
+        public async Task<RLoginResult> LoginUserByEmailForGameServer(
             string email,
             string password)
         {
@@ -245,14 +246,14 @@ namespace Headtrip.Services
             {
                 var user = await _userRepository.GetUserByEmail(email);
                 if (user == null)
-                    return new LoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
+                    return new RLoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
 
                 return await LoginUserForGameServer(user, password);
             }
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return AServiceCallResult.BuildForException<LoginResult>(ex);
+                return AServiceCallResult.BuildForException<RLoginResult>(ex);
             }
         }
 

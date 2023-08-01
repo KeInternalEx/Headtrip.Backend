@@ -10,9 +10,11 @@ namespace Headtrip.GameServerContext
     {
         public IDbConnection Connection { get; private set; }
         public IDbTransaction? Transaction { get; private set; }
+        public string SprocPrefix { get; private set; } = "gs";
 
-        public HeadtripGameServerContext(IConfiguration configuration) =>
-            Connection = new SqlConnection(configuration.GetConnectionString("GameServerConnectionString"));
+
+        public HeadtripGameServerContext(IConfiguration configuration)
+            => Connection = new SqlConnection(configuration.GetConnectionString("GameServerConnectionString"));
 
         public void BeginTransaction()
         {

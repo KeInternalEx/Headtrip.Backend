@@ -4,7 +4,6 @@ using Headtrip.UeService.UnrealEngine;
 using Headtrip.GameServerContext;
 using Headtrip.Objects.UeService;
 using Headtrip.Objects.Instance;
-using Headtrip.Repositories.Abstract;
 using Headtrip.Utilities;
 using Headtrip.Utilities.Abstract;
 using System;
@@ -13,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Headtrip.Repositories.Repositories.Interface.GameServer;
 
 namespace Headtrip.UeService.State
 {

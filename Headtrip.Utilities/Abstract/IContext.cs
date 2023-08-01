@@ -13,6 +13,7 @@ namespace Headtrip.Utilities.Abstract
         IDbConnection Connection { get; }
 
         IDbTransaction? Transaction { get; }
+        string SprocPrefix { get; }
 
         void BeginTransaction();
 

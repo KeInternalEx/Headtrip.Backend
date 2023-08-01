@@ -22,7 +22,7 @@ namespace Headtrip.Objects.User
 
 
         public DateTime DateCreated { get; set; }
-        public DateTime? DateUpdated { get; set; }
+        public DateTime? DateModified { get; set; }
         public DateTime? DateDeleted { get; set; }
         public bool IsPendingDeletion { get; set; }
     }

@@ -4,7 +4,8 @@ using Headtrip.LoginServerContext;
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.Account;
 using Headtrip.Objects.User;
-using Headtrip.Repositories.Abstract;
+using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Abstract;
@@ -21,7 +22,7 @@ using System.Threading.Tasks;
 namespace Headtrip.Services
 {
 
-    public class UserService : IUserService
+    public sealed class UserService : IUserService
     {
         private readonly ILogging<HeadtripLoginServerContext> _logging;
 
@@ -80,7 +81,7 @@ namespace Headtrip.Services
         }
 
 
-        public UserIdDecryptionResult GetUserIdFromEmailConfirmationParameter(string parameter)
+        public RUserIdDecryptionResult GetUserIdFromEmailConfirmationParameter(string parameter)
         {
             try
             {
@@ -88,14 +89,14 @@ namespace Headtrip.Services
                 {
                     _logging.LogWarning($"Passed parameter \"{parameter}\" is not convertable to GUID.");
 
-                    return new UserIdDecryptionResult
+                    return new RUserIdDecryptionResult
                     {
                         Status = "Passed parameter is not convertable to GUID.",
                         IsSuccessful = false
                     };
                 }
 
-                return new UserIdDecryptionResult
+                return new RUserIdDecryptionResult
                 {
                     UserId = userId,
                     IsSuccessful = true,
@@ -105,23 +106,22 @@ namespace Headtrip.Services
             catch (Exception ex)
             {
                 _logging.LogException(ex);
-                return AServiceCallResult.BuildForException<UserIdDecryptionResult>(ex);
+                return AServiceCallResult.BuildForException<RUserIdDecryptionResult>(ex);
             }
         }
 
-        public async Task<AccountCreationResult> ConfirmEmailAndCreateAccount(Guid userId)
+        public async Task<RAccountCreationResult> ConfirmEmailAndCreateAccount(Guid userId)
         {
             try
             {
                 _combinedUnitOfWork.BeginTransaction();
                 await _userRepository.ConfirmEmail(userId); // Writes to login server
 
-                var accountObject = new Account
+                var accountObject = new MAccount
                 {
-                    LastModifiedOn = DateTime.UtcNow,
-                    CreatedOn = DateTime.UtcNow,
+                    DateCreated = DateTime.UtcNow,
 
-                    IsMarkedForDeletion = false,
+                    IsPendingDeletion = false,
                     IsLocked = false,
                     IsSuspended = false,
 
@@ -129,15 +129,13 @@ namespace Headtrip.Services
                     UserId = userId,
                     LastLoginTime = DateTime.UtcNow,
                    // InventoryArray = "[]",
-                    Money = 0,
-                    TotalPlaytimeMs = 0,
                 };
 
                 await _accountRepository.CreateAccount(accountObject); // Writes to game server
                 _combinedUnitOfWork.CommitTransaction();
 
 
-                return new AccountCreationResult
+                return new RAccountCreationResult
                 {
                     Account = accountObject,
                     IsSuccessful = true,
@@ -149,11 +147,11 @@ namespace Headtrip.Services
                 _combinedUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
-                return AServiceCallResult.BuildForException<AccountCreationResult>(ex);
+                return AServiceCallResult.BuildForException<RAccountCreationResult>(ex);
             }
         }
 
-        public async Task<UserCreationResult> CreateUser(
+        public async Task<RUserCreationResult> CreateUser(
             string username,
             string email,
             string password)
@@ -163,11 +161,10 @@ namespace Headtrip.Services
                 var salt = BCrypt.Net.BCrypt.GenerateSalt();
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(password, salt, false, HashType.SHA384);
 
-                var userObject = new User
+                var userObject = new MUser
                 {
-                    CreatedOn = DateTime.UtcNow,
-                    LastModifiedOn = DateTime.UtcNow,
-                    IsDeleted = false,
+                    DateCreated = DateTime.UtcNow,
+                    IsPendingDeletion = false,
                     Email = email,
                     Username = username,
                     IsEmailConfirmed = false,
@@ -182,7 +179,7 @@ namespace Headtrip.Services
 
                 _lsUnitOfWork.CommitTransaction();
 
-                return new UserCreationResult
+                return new RUserCreationResult
                 {
                     User = userObject,
                     EmailConfirmationParameter = EncryptStringWeak(userObject.UserId.ToString()),
@@ -197,7 +194,7 @@ namespace Headtrip.Services
                 _lsUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
-                return AServiceCallResult.BuildForException<UserCreationResult>(ex);
+                return AServiceCallResult.BuildForException<RUserCreationResult>(ex);
             }
         }
 

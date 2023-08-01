@@ -10,6 +10,8 @@ namespace Headtrip.LoginServerContext
     {
         public IDbConnection Connection { get; private set; }
         public IDbTransaction? Transaction { get; private set; }
+        public string SprocPrefix { get; private set; } = "ls";
+
 
         public HeadtripLoginServerContext(IConfiguration configuration) =>
             Connection = new SqlConnection(configuration.GetConnectionString("LoginServerConnectionString"));
