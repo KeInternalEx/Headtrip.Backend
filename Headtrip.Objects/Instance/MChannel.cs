@@ -13,6 +13,7 @@ namespace Headtrip.Objects.Instance
         public Guid UeServiceId { get; set; }
         public string? ZoneName { get; set; }
         public string? ConnectionString { get; set; }
+        public int NumberOfPlayers { get; set; }
         public bool IsAvailable { get; set; } // Set to false while spin up is in process, set to true once pending ServerTransferRequests have been executed
     }
 }

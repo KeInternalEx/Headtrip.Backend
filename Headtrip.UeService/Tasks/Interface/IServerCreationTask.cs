@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Services.Abstract
+namespace Headtrip.UeService.Tasks.Interface
 {
-    public interface IUeServiceService
+    public interface IServerCreationTask : IServiceTask
     {
-
-
     }
 }

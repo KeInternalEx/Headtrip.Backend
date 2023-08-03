@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Headtrip.UeService.Models
 {
-    public sealed class RUeServiceTaskResult : ATaskResult
+    public sealed class RUeServiceResult : ATaskResult
     {
 
 

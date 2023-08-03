@@ -3,7 +3,7 @@ using Headtrip.Objects.UeService;
 using Headtrip.Repositories.Generic;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Repositories.Sql;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Headtrip.Repositories.Repositories.Implementation.GameServer
 {
     public sealed class UeStrRepository :
-        ABulkSqlRepository<MUeServerTransferRequest, HeadtripGameServerContext>, IBulkCopy<MUeServerTransferRequest> IUeStrRepository
+        ABulkSqlRepository<MUeServerTransferRequest, HeadtripGameServerContext>, IBulkOperations<MUeServerTransferRequest>, IUeStrRepository
     {
 
         public UeStrRepository(IContext<HeadtripGameServerContext> context) : base(context, "dbo.UeServerTransferRequests", null) { }
@@ -43,6 +43,9 @@ namespace Headtrip.Repositories.Repositories.Implementation.GameServer
 
         protected async override Task<IEnumerable<MUeServerTransferRequest>> FinalizeBulkCopy()
             => await QueryAsync<MUeServerTransferRequest>("UeServerTransferRequest_FinalizeBulkCopy");
+
+        protected async override Task<IEnumerable<MUeServerTransferRequest>> FinalizeBulkUpdate()
+            => await QueryAsync<MUeServerTransferRequest>("UeServerTransferRequest_FinalizeBulkUpdate");
 
         #endregion
 

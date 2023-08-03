@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Repositories.Repositories.Interface.GameServer
 {
-    public interface IUeStrRepository : IGenericRepository<MUeServerTransferRequest, Guid>, IBulkOperations<MUeServerTransferRequest>
+    public interface IUeLatencyRecordRepository : IGenericRepository<MUeLatencyRecord, Guid>, IBulkOperations<MUeLatencyRecord>
     {
+        Task<IEnumerable<MUeLatencyRecord>> ReadForTransformableRequests();
 
-
-        Task<IEnumerable<MUeServerTransferRequest>> ReadWithState(EUeServerTransferRequestState State);
     }
 }

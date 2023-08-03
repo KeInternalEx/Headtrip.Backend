@@ -3,103 +3,150 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Headtrip.UeService.UnrealEngine.Abstract;
 using Headtrip.UeService.UnrealEngine.Messaging;
 using Headtrip.UeService.UnrealEngine.Messaging.Abstract;
 using Headtrip.UeService.UnrealEngine.Messaging.Messages.ToUnreal;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Newtonsoft.Json;
 
 
 namespace Headtrip.UeService.UnrealEngine
 {
-    public sealed class UnrealServerInstance : IUnrealServerInstance
+    /**
+     * DO NOT STORE REFERENCES TO THIS OBJECT OUTSIDE OF THE UeServiceState DICTS
+     */
+    public sealed class UnrealServerInstance : IDisposable, IAsyncDisposable
     {
-        private bool disposedValue;
+        private bool _Disposed;
 
+        public readonly string _LevelName;
+        public string LevelName { get { return _LevelName; } }
 
-        private readonly string? _filePath;
-        private readonly Guid _channelId;
+        private string? _ConnectionString;
+        public string? ConnectionString { get { return _ConnectionString; } }
 
-        private IMessagePipeline _messagePipeline;
-        private Process _process;
-        private IPEndPoint _endPoint;
-        private Socket _socket;
+        private Guid? _ChannelId;
+        public Guid? ChannelId { get { return _ChannelId; } }
 
-        public UnrealServerInstance(
-            Guid UeServiceId,
-            Guid channelId,
-            string LevelName)
+        private bool _IsRunning;
+        public bool IsRunning { get { return _IsRunning; } }
+
+        private Process? _Process;
+        private IPEndPoint? _SendEndpoint;
+        private IPEndPoint? _ReceiveEndpoint;
+        private Socket? _SendSocket;
+        private Socket? _ReceiveSocket;
+
+        public UnrealServerInstance(string LevelName)
         {
-            _filePath = ConfigurationManager.AppSettings["UnrealServerBinaryPath"];
-            if (_filePath == null)
-                throw new Exception($"UnrealServerBinaryPath not set in app settings for UeService {UeServiceId}");
-
-            _channelId = channelId;
-            _endPoint = new IPEndPoint(IPAddress.Loopback, 0);
-
-            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            _socket.Bind(_endPoint);
-            _socket.Listen();
-
-            _process = Process.Start(_filePath, $"{LevelName}?UeServiceIpcPort={_endPoint.Port} -server");
-            _messagePipeline = new MessagePipeline();
+            _LevelName = LevelName;
+            _IsRunning = false;
         }
 
-
-        public async Task WriteString(string text)
+        public Task Begin()
         {
-            await _socket.SendAsync(Encoding.UTF8.GetBytes(text));
-        }
-
-        public async Task WriteObject(IMessageObject messageObject)
-        {
-            var str = JsonConvert.SerializeObject(messageObject);
-            var buf = Encoding.UTF8.GetBytes(str);
-
-            await _socket.SendAsync(buf);
-        }
-
-        public void AddMessageHandler<T>(MessageHandler handler) =>
-            _messagePipeline.AddMessageHandler<T>(handler);
-
-        public void RemoveMessageHandler<T>(MessageHandler handler) =>
-            _messagePipeline.RemoveMessageHandler<T>(handler);
-
-
-
-
-
-
-
-
-
-        #region Dispose
-        public void Dispose()
-        {
-            if (!disposedValue)
+            try
             {
-                if (_process != null)
-                {
-                    _process.Kill();
-                    _process.Dispose();
-                }
-                disposedValue = true;
+                _SendEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
+                _ReceiveEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
+
+                _SendSocket = new Socket(SocketType.Dgram, ProtocolType.Udp);
+                _SendSocket.Bind(_SendEndpoint);
+
+                _ReceiveSocket = new Socket(SocketType.Dgram, ProtocolType.Udp);
+                _ReceiveSocket.Bind(_ReceiveEndpoint);
+
+
+
+                _Process = Process.Start(
+                    ConfigurationManager.AppSettings["UnrealDedicatedServerPath"],
+                    $"{_LevelName}?sp={_ReceiveEndpoint.Port}&rp={_SendEndpoint.Port} -server");
+
+                _IsRunning = true;
+
+
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException(ex);
             }
         }
-        public async ValueTask DisposeAsyncCore()
+
+
+        public async Task<Guid> SetChannelId(Guid ChannelId)
         {
-            if (_socket != null)
+            _ChannelId = ChannelId;
+
+            // TODO: NEED TO SEND A CHANNEL ID UPDATE COMMAND TO THE UE SERVER INSTANCE
+
+
+            return _ChannelId.Value;
+        }
+
+
+
+        private async Task Close()
+        {
+
+        }
+
+
+        private async ValueTask DisposeAsyncCore()
+        {
+            if (_Process != null &&
+                _SendSocket != null &&
+                _ReceiveSocket != null)
             {
-                await WriteObject(new MsgShutdownServer());
+                await Close();
             }
         }
+
+
         public async ValueTask DisposeAsync()
         {
             await DisposeAsyncCore();
-            Dispose();
+
+            Dispose(false);
             GC.SuppressFinalize(this);
         }
-        #endregion Dispose
 
+        private void Dispose(bool disposing)
+        {
+            if (_Disposed)
+                return;
+
+            if (disposing)
+            {
+                if (_Process != null)
+                {
+                    _Process.Close();
+                    _Process.Dispose();
+                    _Process = null;
+                }
+
+                if (_ReceiveSocket != null)
+                {
+                    _ReceiveSocket.Close();
+                    _ReceiveSocket.Dispose();
+                    _ReceiveSocket = null;
+                }
+
+                if (_SendEndpoint != null)
+                {
+                    _SendSocket.Close();
+                    _SendSocket.Dispose();
+                    _SendSocket = null;
+                }
+            }
+
+            _Disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

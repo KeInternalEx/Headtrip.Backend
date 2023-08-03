@@ -9,12 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="Topshelf" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Headtrip.GameServerContext\Headtrip.GameServerContext.csproj" />
+    <ProjectReference Include="..\Headtrip.Objects\Headtrip.Objects.csproj" />
     <ProjectReference Include="..\Headtrip.Services\Headtrip.Services.csproj" />
     <ProjectReference Include="..\Headtrip.Utilities\Headtrip.Utilities.csproj" />
   </ItemGroup>

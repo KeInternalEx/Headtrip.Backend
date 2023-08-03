@@ -9,11 +9,18 @@ namespace Headtrip.Objects.UeService
 {
     public enum EUeServerTransferRequestState : byte
     {
-        Completed = 0,
-        PendingTransform = 1,
-        Transforming = 2,
-        PendingAssignment = 3,
-        Assigning = 4
+        Unknown = 0,
+        
+        PendingTransform = 10,
+        
+        PendingServerCreation = 20,
+        FailedServerCreation = 21,
+
+
+        PendingAssignment = 30,
+        FailedAssignment = 31,
+
+        Completed = 255
     }
 
 
@@ -27,6 +34,7 @@ namespace Headtrip.Objects.UeService
         public Guid? TargetChannelId { get; set; }
         public Guid? TargetUeServiceId { get; set; }
 
+        public Guid? GroupId { get; set; }
 
         public Guid AccountId { get; set; }
         public Guid? PartyId { get; set; }

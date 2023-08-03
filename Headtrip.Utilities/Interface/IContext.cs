@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Utilities.Abstract
+namespace Headtrip.Utilities.Interface
 {
     public interface IContext<T> : IDisposable
     {

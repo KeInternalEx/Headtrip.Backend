@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Objects.UeService
 {
-    public sealed class TUeServicePartyMapping
+    public sealed class TStrGroup
     {
         public string? ZoneName { get; set; }
+        public Guid UeServiceId { get; set; }
+        public Guid GroupId { get; set; }
         public List<MUeServerTransferRequest>? ServerTransferRequests { get; set; }
-        public Dictionary<Guid, float>? AverageLatencyByUeServiceId { get; set; }
-        public double AverageLevel { get; set; }
+
+        public byte NumberOfParties { get; set; }
+        public byte NumberOfPlayers { get; set; }
+
     }
 }

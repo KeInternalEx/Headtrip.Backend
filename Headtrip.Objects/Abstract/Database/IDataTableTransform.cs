@@ -14,7 +14,7 @@ namespace Headtrip.Objects.Abstract.Database
      */
     public interface IDataTableTransform
     {
-        void MapToRow(DataRow Row);
+        void MapToRow(ref DataRow Row);
         void MapToColumns(DataColumnCollection Columns);
 
     }

@@ -13,7 +13,7 @@ namespace Headtrip.Objects.Abstract.Database
      */
     public abstract class ADatabaseObject : IDataTableTransform
     {
-        public virtual void MapToRow(DataRow Row)
+        public virtual void MapToRow(ref DataRow Row)
         {
             foreach (var property in this.GetType().GetProperties())
             {

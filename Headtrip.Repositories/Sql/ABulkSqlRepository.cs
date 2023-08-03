@@ -2,7 +2,7 @@
 using Headtrip.Objects.Abstract.Database;
 using Headtrip.Repositories.Generic;
 using Headtrip.Repositories.Sql.Implementations;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Headtrip.Repositories.Sql
 {
     public abstract class ABulkSqlRepository<TDatabaseObject, TContext> :
-        ADapperSqlImplementation<TContext>, ISqlImplementation, IBulkCopy<TDatabaseObject>
+        ADapperSqlImplementation<TContext>, ISqlImplementation, IBulkOperations<TDatabaseObject>
         where TDatabaseObject : IDataTableTransform
     {
         protected string _TableName;
@@ -32,11 +32,7 @@ namespace Headtrip.Repositories.Sql
             _BatchSize = batchSize;
         }
 
-
-
-        #region IBulkCopy<TDatabaseObject>
-        protected abstract Task<IEnumerable<TDatabaseObject>> FinalizeBulkCopy();
-        public async Task<IEnumerable<TDatabaseObject>> BulkCopy(IEnumerable<TDatabaseObject> Objects)
+        private async Task<IEnumerable<TDatabaseObject>?> PopulateTempTable(IEnumerable<TDatabaseObject> Objects)
         {
             if (Objects.Count() == 0)
                 throw new ArgumentException("No objects in collection");
@@ -63,7 +59,42 @@ namespace Headtrip.Repositories.Sql
                 await bulkCopy.WriteToServerAsync(dataTable);
             }
 
-            return await FinalizeBulkCopy();
+            return null;
+        }
+
+        #region IBulkCopy<TDatabaseObject>
+        protected abstract Task<IEnumerable<TDatabaseObject>> FinalizeBulkCopy();
+        protected abstract Task<IEnumerable<TDatabaseObject>> FinalizeBulkUpdate();
+
+        public async Task<IEnumerable<TDatabaseObject>> BulkCopyFlush()
+            => await FinalizeBulkCopy();
+
+        public async Task<IEnumerable<TDatabaseObject>> BulkUpdateFlush()
+            => await FinalizeBulkUpdate();
+
+
+        public async Task<IEnumerable<TDatabaseObject>?> BulkCopy(IEnumerable<TDatabaseObject> Objects, bool AutoFlush = true)
+        {
+            var earlyObjects = await PopulateTempTable(Objects);
+            if (earlyObjects != null)
+                return earlyObjects;
+
+            if (AutoFlush)
+                return await FinalizeBulkCopy();
+
+            return null;
+        }
+
+        public async Task<IEnumerable<TDatabaseObject>?> BulkUpdate(IEnumerable<TDatabaseObject> Objects, bool AutoFlush = true)
+        {
+            var earlyObjects = await PopulateTempTable(Objects);
+            if (earlyObjects != null)
+                return earlyObjects;
+
+            if (AutoFlush)
+                return await FinalizeBulkUpdate();
+
+            return null;
         }
 
         public Task<DataTable?> BulkTransform(IEnumerable<TDatabaseObject> Objects)
@@ -75,12 +106,15 @@ namespace Headtrip.Repositories.Sql
 
 
                 var table = new DataTable();
-
+                
                 Objects.First().MapToColumns(table.Columns);
 
                 foreach (var Object in Objects)
                 {
-                    Object.MapToRow(table.NewRow());
+                    var row = table.NewRow();
+
+                    Object.MapToRow(ref row);
+                    table.Rows.Add(row);
                 }
 
                 return Task.FromResult<DataTable?>(table);

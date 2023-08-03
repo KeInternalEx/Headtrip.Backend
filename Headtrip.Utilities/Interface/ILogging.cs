@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Utilities.Abstract
+namespace Headtrip.Utilities.Interface
 {
     public interface ILogging<T>
     {
