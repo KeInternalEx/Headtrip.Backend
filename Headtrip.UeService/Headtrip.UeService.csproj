@@ -17,11 +17,8 @@
     <ProjectReference Include="..\Headtrip.GameServerContext\Headtrip.GameServerContext.csproj" />
     <ProjectReference Include="..\Headtrip.Objects\Headtrip.Objects.csproj" />
     <ProjectReference Include="..\Headtrip.Services\Headtrip.Services.csproj" />
+    <ProjectReference Include="..\Headtrip.UeMessages\Headtrip.UeMessages.csproj" />
     <ProjectReference Include="..\Headtrip.Utilities\Headtrip.Utilities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UnrealEngine\Messaging\Messages\FromUnreal\" />
   </ItemGroup>
 
 </Project>

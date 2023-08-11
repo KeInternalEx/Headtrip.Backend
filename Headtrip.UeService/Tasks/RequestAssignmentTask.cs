@@ -65,7 +65,6 @@ namespace Headtrip.UeService.Tasks
             }
         }
        
-        private async Task 
 
         protected async override Task Execute()
         {
@@ -91,6 +90,8 @@ namespace Headtrip.UeService.Tasks
 
                             var channel = await _ChannelRepository.Read(currentRequest.TargetChannelId!.Value);
 
+
+                            server.Instance.
                         }
                     }
                     // DONE: get server transfer requests that have the pending assignment state AND have a CurrentUeServerid that we own

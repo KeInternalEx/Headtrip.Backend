@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.UeService", "Headt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Objects", "Headtrip.Objects\Headtrip.Objects.csproj", "{4604A9EE-476E-4115-8BC9-BFD89D07D2A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.UeMessages", "Headtrip.UeMessages\Headtrip.UeMessages.csproj", "{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{4604A9EE-476E-4115-8BC9-BFD89D07D2A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4604A9EE-476E-4115-8BC9-BFD89D07D2A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4604A9EE-476E-4115-8BC9-BFD89D07D2A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
