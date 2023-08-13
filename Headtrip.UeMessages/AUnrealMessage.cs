@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PeterO.Cbor;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -13,14 +14,25 @@ namespace Headtrip.UeMessages
     {
         public readonly string Type;
         public readonly string Version;
+        public readonly string HTMGX;
 
         protected AUnrealMessage(string type, string? version = null)
         {
             Type = type;
             Version = version ?? Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            HTMGX = string.Empty;
         }
 
-        public byte[] Serialize()
-            => Encoding.Unicode.GetBytes(JsonSerializer.Serialize(this, this.GetType()));
+        public string SerializeJson()
+            => JsonSerializer.Serialize(this, this.GetType());
+
+        public byte[] SerializeCbor()
+        {
+            using (var stream = new MemoryStream())
+            {
+                JsonSerializer.Serialize(stream, this, this.GetType(), JsonSerializerOptions.Default);
+                return CBORObject.ReadJSON(stream, JSONOptions.Default).EncodeToBytes();
+            }
+        }
     }
 }

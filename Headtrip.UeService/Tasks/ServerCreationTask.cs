@@ -4,8 +4,8 @@ using Headtrip.Objects.Instance;
 using Headtrip.Objects.UeService;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.UeService.Models;
-using Headtrip.UeService.Models.Abstract.Results;
 using Headtrip.UeService.Objects;
+using Headtrip.UeService.Objects.Results.Abstract;
 using Headtrip.UeService.Objects.UeServer;
 using Headtrip.UeService.State;
 using Headtrip.UeService.Tasks.Abstract;
@@ -38,9 +38,9 @@ namespace Headtrip.UeService.Tasks
             public MChannel? Channel { get; set; }
         }
 
-        
 
 
+        private readonly IServiceProvider _ServiceProvider;
         private readonly ILogging<HeadtripGameServerContext> _Logging;
         private readonly IUnitOfWork<HeadtripGameServerContext> _GsUnitOfWork;
 
@@ -51,6 +51,7 @@ namespace Headtrip.UeService.Tasks
 
 
         public ServerCreationTask(
+            IServiceProvider ServiceProvider,
             ILogging<HeadtripGameServerContext> Logging,
             IUnitOfWork<HeadtripGameServerContext> GsUnitOfWork,
             IUeServiceRepository UeServiceRepository,
@@ -61,6 +62,7 @@ namespace Headtrip.UeService.Tasks
             UeServiceState.CancellationTokenSource.Value.Token,
             UeServiceConfiguration.ServerCreationTaskInterval)
         {
+            _ServiceProvider = ServiceProvider;
             _Logging = Logging;
             _GsUnitOfWork = GsUnitOfWork;
             _UeServiceRepository = UeServiceRepository;
@@ -163,41 +165,6 @@ namespace Headtrip.UeService.Tasks
             return null;
         }
        
-        private async Task<RCreateChannelResult> CreateChannel(UnrealServerInstance ServerInstance, TStrGroup Group)
-        {
-            var result = new RCreateChannelResult
-            {
-                IsSuccessful = false
-            };
-
-            _GsUnitOfWork.BeginTransaction();
-
-            try
-            {
-                result.Channel = await _ChannelRepository.Create(new MChannel
-                {
-                    UeServiceId = UeServiceState.ServiceId,
-                    ConnectionString = ServerInstance.ConnectionString,
-                    IsAvailable = false,
-                    ZoneName = Group.ZoneName,
-                    NumberOfPlayers = Group.NumberOfPlayers
-                });
-
-                result.IsSuccessful = true;
-                result.Status = $"Successfully created channel on zone {Group.ZoneName} w/ ID {result.Channel.ChannelId} for grp {Group.GroupId}";
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                return ATaskResult.BuildForException<RCreateChannelResult>(ex);
-            }
-            finally
-            {
-                _GsUnitOfWork.Finalize(result.IsSuccessful);
-            }
-        }
         private async Task DeleteChannel(Guid ChannelId)
         {
             _GsUnitOfWork.BeginTransaction();
@@ -215,140 +182,46 @@ namespace Headtrip.UeService.Tasks
             }
         }
 
-        private async Task<RUeServiceResult> CompleteServerTransferRequests(TStrGroup Group, Guid ChannelId)
-        {
-            var result = new RUeServiceResult
-            {
-                IsSuccessful = false
-            };
-
-            _GsUnitOfWork.BeginTransaction();
-
-            try
-            {
-                foreach (var str in Group.ServerTransferRequests)
-                {
-                    str.TargetChannelId = ChannelId;
-                    str.TargetUeServiceId = UeServiceState.ServiceId;
-                    str.State = EUeServerTransferRequestState.PendingAssignment;
-                }
-
-                await _UeStrRepository.BulkUpdate(Group.ServerTransferRequests);
-
-                result.IsSuccessful = true;
-                result.Status = $"Successfully updated {Group.ServerTransferRequests.Count} strs for group {Group.GroupId}";
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                return ATaskResult.BuildForException<RUeServiceResult>(ex);
-            }
-            finally
-            {
-                _GsUnitOfWork.Finalize(result.IsSuccessful);
-            }
-        }
+        
 
         private async Task<bool> ProcessGroup(TCreationGroup group)
         {
-            UnrealServerInstance serverInstance;
-
             try
             {
-                serverInstance = new UnrealServerInstance(group.LevelName);
-                await serverInstance.Begin();
+                if (UeServiceState.ActiveServersByStrGroupId.TryGetValue(group.Group.GroupId, out var existingServer))
+                {
+                    return true;
+                }
+
+                var serverInstance = new UnrealServerInstance(group.LevelName, group.Group, _Logging);
+                var ueServerDescriptor = new TUeServer
+                {
+                    InitialGroup = group.Group,
+                    Instance = serverInstance
+                };
+
+                if (!UeServiceState.ActiveServersByStrGroupId.TryAdd(
+                    group.Group.GroupId,
+                    ueServerDescriptor))
+                {
+                    throw new Exception($"Unable to add server to collection for group {group.Group.GroupId}");
+                }
+
+                serverInstance.Start(_ServiceProvider); // This method actually triggers the rest of the creation process
+                                                        // The unreal server will send a message carrying the connection string, which is needed to continue processing
+
+                return await Task.FromResult(true);
             }
             catch (Exception ex)
             {
                 _Logging.LogException(ex);
                 _Logging.LogWarning($"Error while creating server for group {group.Group.GroupId} / {group.LevelName}");
 
-                return false;
+                return await Task.FromResult(false);
             }
-
-            try
-            {
-                var channelCreationResult = await CreateChannel(serverInstance, group.Group);
-                if (!channelCreationResult.IsSuccessful)
-                    throw new Exception($"Unable to create channel for group {group.Group.GroupId}");
-
-                try
-                {
-                    await serverInstance.SetChannelId(channelCreationResult.Channel.ChannelId);
-
-
-                    var ueServerDescriptor = new TUeServer
-                    {
-                        InitialGroup = group.Group,
-                        Channel = channelCreationResult.Channel,
-                        Instance = serverInstance
-                    };
-
-
-                    if (!UeServiceState.ActiveServersByChannelId.TryAdd(
-                        channelCreationResult.Channel.ChannelId,
-                        ueServerDescriptor))
-                    {
-                        throw new Exception($"Unable to add server to collection for channel {channelCreationResult.Channel.ChannelId}");
-                    }
-
-                    try
-                    {
-                        if (!UeServiceState.ActiveServersByStrGroupId.TryAdd(
-                            group.Group.GroupId,
-                            ueServerDescriptor))
-                        {
-                            throw new Exception($"Unable to add server to collection for group {group.Group.GroupId} - cid {channelCreationResult.Channel.ChannelId}");
-                        }
-
-
-                        try
-                        {
-                            var success = await CompleteServerTransferRequests(group.Group, channelCreationResult.Channel.ChannelId);
-                            if (success.IsSuccessful)
-                            {
-                                return true;
-                            }
-
-                            throw new Exception($"Unable to update STR states for group {group.Group.GroupId}");
-                        }
-                        catch (Exception)
-                        {
-                            UeServiceState.ActiveServersByChannelId.TryRemove(channelCreationResult.Channel.ChannelId, out var _dummy);
-                            UeServiceState.ActiveServersByStrGroupId.TryRemove(group.Group.GroupId, out _dummy);
-
-                            throw;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        UeServiceState.ActiveServersByChannelId.TryRemove(channelCreationResult.Channel.ChannelId, out var _dummy);
-                        throw;
-                    }
-
-                }
-                catch (Exception) // Manually roll back channel creation and rethrow the exception
-                {
-                    await DeleteChannel(channelCreationResult.Channel.ChannelId);
-                    throw;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                await serverInstance.DisposeAsync();
-                return false;
-            }
-
-
-            // create channel based on this instance DONE
-            // update channel id for the server instance (REQUIRES IMPLEMENTATION)
-            // update state dictionaries with pointer to server instance DONE
-            // update transfer requests with the assignment pending flag DONE
         }
+
+
 
         public async Task UpdateRemainingServersCounter(int NumberOfServersCreated)
         {

@@ -3,7 +3,6 @@ using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.UeService;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.UeService.Models;
-using Headtrip.UeService.Models.Abstract.Results;
 using Headtrip.UeService.Objects;
 using Headtrip.UeService.State;
 using Headtrip.UeService.Tasks.Abstract;
@@ -91,7 +90,7 @@ namespace Headtrip.UeService.Tasks
                             var channel = await _ChannelRepository.Read(currentRequest.TargetChannelId!.Value);
 
 
-                            server.Instance.
+                            // server.Instance.
                         }
                     }
                     // DONE: get server transfer requests that have the pending assignment state AND have a CurrentUeServerid that we own

@@ -1,5 +1,5 @@
 ﻿using Headtrip.UeService.Models.Abstract;
-using Headtrip.UeService.Models.Abstract.Results;
+using Headtrip.UeService.Objects.Results.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;

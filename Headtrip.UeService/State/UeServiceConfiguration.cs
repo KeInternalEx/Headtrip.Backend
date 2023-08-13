@@ -18,7 +18,13 @@ namespace Headtrip.UeService.State
         public static int ServerCreationTaskInterval
             => 1000;
 
+        public static int ServerShutdownGracePeriod
+            => 15000;
+
         public static bool IsSuperService
             => true;
+
+        public static string ServerBinaryPath
+            => "";
     }
 }

@@ -6,7 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Models.Abstract.Results
+namespace Headtrip.UeService.Objects.Results.Abstract
 {
     public abstract class ATaskResult : AServiceCallResult
     {

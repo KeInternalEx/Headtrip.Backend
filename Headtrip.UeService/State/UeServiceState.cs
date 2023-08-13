@@ -1,6 +1,8 @@
 ﻿using Headtrip.Objects.UeService;
 using Headtrip.UeService.Objects.UeServer;
 using Headtrip.UeService.Threading;
+using Headtrip.UeService.UnrealEngine;
+using Headtrip.UeService.UnrealEngine.Interface;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,6 +20,7 @@ namespace Headtrip.UeService.State
         // THE DICTS IN THIS REGION SHOULD BE THE ONLY LONG TERM REFERENCES TO UnrealServerInstance OBJECTS
         // IF THE INSTANCE IS REMOVED FROM THESE DICTS, IT SHOULD BE GARBAGE COLLECTED AND AUTOMATICALLY SHUTDOWN GRACEFULLY
         
+
         public static ConcurrentDictionary<Guid, TUeServer> ActiveServersByStrGroupId =
             new ConcurrentDictionary<Guid, TUeServer>();
 
@@ -32,6 +35,9 @@ namespace Headtrip.UeService.State
 
         public static TsObject<MUeService> ServiceModel =
             new TsObject<MUeService>(null);
+
+        public static ConcurrentDictionary<int, IUnrealMessagePoller> UnrealMessagePollers =
+            new ConcurrentDictionary<int, IUnrealMessagePoller>();
 
         public static Guid ServiceId { get; private set; }
     }

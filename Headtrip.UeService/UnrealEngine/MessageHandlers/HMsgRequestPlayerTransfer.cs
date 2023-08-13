@@ -1,4 +1,5 @@
-﻿using Headtrip.UeService.UnrealEngine.MessageHandlers;
+﻿using Headtrip.UeService.UnrealEngine.MessageHandlers.Abstract;
+using Headtrip.UeService.UnrealEngine.MessageHandlers.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Headtrip.UeMessages.Inbound
     {
 
         public HMsgRequestPlayerTransfer() : base(MsgRequestPlayerTransfer.MsgType) { }
-        protected async override Task HandleMessage(MsgRequestPlayerTransfer Message)
+        protected async override Task HandleMessage(MsgRequestPlayerTransfer Message, CancellationToken Token)
         {
             // TODO: NEED TO SEND THIGNG
 
