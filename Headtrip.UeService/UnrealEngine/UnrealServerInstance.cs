@@ -6,6 +6,7 @@ using System.Text;
 using Headtrip.GameServerContext;
 using Headtrip.Objects.UeService;
 using Headtrip.UeService.State;
+using Headtrip.UeService.UnrealEngine.Interface;
 using Headtrip.Utilities;
 using Headtrip.Utilities.Interface;
 using Microsoft.AspNetCore.SignalR.Protocol;
@@ -15,10 +16,7 @@ using Newtonsoft.Json;
 
 namespace Headtrip.UeService.UnrealEngine
 {
-    /**
-     * DO NOT STORE REFERENCES TO THIS OBJECT OUTSIDE OF THE UeServiceState DICTS
-     */
-    public sealed class UnrealServerInstance : IAsyncDisposable
+    public sealed class UnrealServerInstance : IUnrealServerInstance, IDisposable
     {
         private readonly Guid _ServerId;
         private readonly string _LevelName;
@@ -26,8 +24,9 @@ namespace Headtrip.UeService.UnrealEngine
 
 
         private Guid? _ChannelId;
+        private IUnrealMessageBus? _MessageBus;
+
         private UnrealProcess? _Process;
-        private UnrealMessageBus? _MessageBus;
 
         private ILogging<HeadtripGameServerContext> _Logging;
 
@@ -49,26 +48,21 @@ namespace Headtrip.UeService.UnrealEngine
             _ProgenitorGroup = ProgenitorGroup;
         }
 
-        public void Start(IServiceProvider ServiceProvider)
+        public void SetMessageBus(IUnrealMessageBus MessageBus)
         {
-            _MessageBus = new UnrealMessageBus(this, ServiceProvider, _Logging);
+            _MessageBus = MessageBus;
+        }
+
+        public void Start()
+        { 
             _Process = new UnrealProcess(UeServiceConfiguration.ServerBinaryPath, $"{_LevelName}?ServiceSocketPort={_MessageBus.Port} -server");
         }
 
         public void SetChannelId(Guid ChannelId)
             => _ChannelId = ChannelId;
 
-        public async ValueTask DisposeAsync()
+        public void Dispose()
         {
-            if (_ChannelId != null)
-                UeServiceState.ActiveServersByChannelId.TryRemove(_ChannelId.Value, out _);
-
-            UeServiceState.ActiveServersByStrGroupId.TryRemove(_ProgenitorGroup.GroupId, out _);
-            
-
-            if (_MessageBus != null)
-                await _MessageBus.DisposeAsync();
-
             if (_Process != null)
                 _Process.Dispose();
 

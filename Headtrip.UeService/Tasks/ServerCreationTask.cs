@@ -11,6 +11,7 @@ using Headtrip.UeService.State;
 using Headtrip.UeService.Tasks.Abstract;
 using Headtrip.UeService.Tasks.Interface;
 using Headtrip.UeService.UnrealEngine;
+using Headtrip.UeService.UnrealEngine.Management.Interface;
 using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,8 @@ namespace Headtrip.UeService.Tasks
         private readonly IChannelRepository _ChannelRepository;
         private readonly IZoneRepository _ZoneRepository;
 
+        private readonly IUnrealServerFactory _UnrealServerFactory;
+
 
         public ServerCreationTask(
             IServiceProvider ServiceProvider,
@@ -57,7 +60,8 @@ namespace Headtrip.UeService.Tasks
             IUeServiceRepository UeServiceRepository,
             IUeStrRepository UeStrRepository,
             IChannelRepository ChannelRepository,
-            IZoneRepository ZoneRepository) :
+            IZoneRepository ZoneRepository,
+            IUnrealServerFactory UnrealServerFactory) :
         base(
             UeServiceState.CancellationTokenSource.Value.Token,
             UeServiceConfiguration.ServerCreationTaskInterval)
@@ -69,6 +73,7 @@ namespace Headtrip.UeService.Tasks
             _UeStrRepository = UeStrRepository;
             _ChannelRepository = ChannelRepository;
             _ZoneRepository = ZoneRepository;
+            _UnrealServerFactory = UnrealServerFactory;
         }
 
         private Dictionary<string, string> LevelNameCache =
@@ -171,27 +176,8 @@ namespace Headtrip.UeService.Tasks
         {
             try
             {
-                if (UeServiceState.ActiveServersByStrGroupId.TryGetValue(group.Group.GroupId, out var existingServer))
-                {
-                    return true;
-                }
-
-                var serverInstance = new UnrealServerInstance(group.LevelName, group.Group, _Logging);
-                var ueServerDescriptor = new TUeServer
-                {
-                    InitialGroup = group.Group,
-                    Instance = serverInstance
-                };
-
-                if (!UeServiceState.ActiveServersByStrGroupId.TryAdd(
-                    group.Group.GroupId,
-                    ueServerDescriptor))
-                {
-                    throw new Exception($"Unable to add server to collection for group {group.Group.GroupId}");
-                }
-
-                serverInstance.Start(_ServiceProvider); // This method actually triggers the rest of the creation process
-                                                        // The unreal server will send a message carrying the connection string, which is needed to continue processing
+                var serverInstance = _UnrealServerFactory.Create(group.LevelName, group.Group);
+                await _UnrealServerFactory.StartInstance(serverInstance);
 
                 return await Task.FromResult(true);
             }

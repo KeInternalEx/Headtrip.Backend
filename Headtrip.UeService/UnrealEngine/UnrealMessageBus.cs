@@ -19,8 +19,9 @@ using PeterO.Cbor;
 
 namespace Headtrip.UeService.UnrealEngine
 {
-    public sealed class UnrealMessageBus : IUnrealMessagePoller, IAsyncDisposable
+    public sealed class UnrealMessageBus : IUnrealMessageBus, IUnrealMessagePoller, IAsyncDisposable
     {
+        private readonly Guid _MessageBusId;
         private readonly IPEndPoint _Endpoint;
         private readonly Socket _Socket;
         private readonly IEnumerable<IUnrealMessageHandler> _MessageHandlers;
@@ -28,16 +29,16 @@ namespace Headtrip.UeService.UnrealEngine
 
         private readonly ILogging<HeadtripGameServerContext> _Logging;
 
-        private bool _Initialized;
-
         public string Port { get { return _Endpoint.Port.ToString(); } }
+        public Guid MessageBusId { get { return _MessageBusId; } }
 
         public UnrealMessageBus(
-            UnrealServerInstance ServerInstance,
+            IUnrealServerInstance ServerInstance,
             IServiceProvider ServiceProvider,
             ILogging<HeadtripGameServerContext> Logging)
         {
-            _Initialized = false;
+
+            _MessageBusId = Guid.NewGuid();
             _Logging = Logging;
 
 
@@ -58,9 +59,6 @@ namespace Headtrip.UeService.UnrealEngine
 
             foreach (var handler in _MessageHandlers)
                 handler.SetServerInstance(ServerInstance);
-
-            if (!UeServiceState.UnrealMessagePollers.TryAdd(this.GetHashCode(), this))
-                throw new Exception($"Unable to add message bus {this.GetHashCode()} to list of mesage pollers.");
         }
 
 
@@ -155,14 +153,11 @@ namespace Headtrip.UeService.UnrealEngine
 
         public async ValueTask DisposeAsync()
         {
-            if (_Initialized)
-                UeServiceState.UnrealMessagePollers.TryRemove(this.GetHashCode(), out _);
-
             if (_Socket != null)
             {
                 await SendMessage(new MsgShutdown());
-                await Task.Delay(UeServiceConfiguration.ServerShutdownGracePeriod); 
 
+                _Socket.Close();
                 _Socket.Dispose();
             }
         }

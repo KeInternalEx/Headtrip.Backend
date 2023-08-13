@@ -1,6 +1,7 @@
 ﻿using Headtrip.UeService.State;
 using Headtrip.UeService.Tasks.Abstract;
 using Headtrip.UeService.Tasks.Interface;
+using Headtrip.UeService.UnrealEngine.Management.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +12,16 @@ namespace Headtrip.UeService.Tasks
 {
     public sealed class MessagePollTask : AServiceTask, IMessagePollTask
     {
+
+        private IUnrealMessageBusFactory _UnrealMessageBusFactory;
         
-        public MessagePollTask() : base(
+        public MessagePollTask(
+            IUnrealMessageBusFactory UnrealMessageBusFactory) :
+        base(
             UeServiceState.CancellationTokenSource.Value.Token,
             UeServiceConfiguration.RequestAssignmentTaskInterval)
         {
-
+            _UnrealMessageBusFactory = UnrealMessageBusFactory;
         }
 
 
@@ -24,8 +29,8 @@ namespace Headtrip.UeService.Tasks
         {
             while (!_Token.IsCancellationRequested)
             {
-                var pollers = UeServiceState.UnrealMessagePollers.Values;
-                if (pollers.Count == 0)
+                var pollers = _UnrealMessageBusFactory.GetPollers();
+                if (pollers.Count() == 0)
                 {
                     await Task.Delay(250); // Save cpu cycles if we have no poll methods to run
                     continue;

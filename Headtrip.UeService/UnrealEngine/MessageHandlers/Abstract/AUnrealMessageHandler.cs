@@ -1,4 +1,5 @@
 ﻿using Headtrip.UeMessages;
+using Headtrip.UeService.UnrealEngine.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Headtrip.UeService.UnrealEngine.MessageHandlers.Abstract
     public abstract class AUnrealMessageHandler<TMessage> where TMessage : AUnrealMessage
     {
         public readonly string MsgType;
-        protected UnrealServerInstance? _ServerInstance;
+        protected IUnrealServerInstance? _ServerInstance;
 
         protected AUnrealMessageHandler(string msgType)
             => MsgType = msgType;
@@ -22,7 +23,7 @@ namespace Headtrip.UeService.UnrealEngine.MessageHandlers.Abstract
                 await HandleMessage(Message as TMessage, Token);
         }
 
-        public void SetServerInstance(UnrealServerInstance ServerInstance)
+        public void SetServerInstance(IUnrealServerInstance ServerInstance)
             => _ServerInstance = ServerInstance;
     }
 }
