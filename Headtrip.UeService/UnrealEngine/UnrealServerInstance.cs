@@ -25,13 +25,15 @@ namespace Headtrip.UeService.UnrealEngine
         private readonly TStrGroup _ProgenitorGroup;
 
 
+        private Guid? _ChannelId;
         private UnrealProcess? _Process;
         private UnrealMessageBus? _MessageBus;
 
         private ILogging<HeadtripGameServerContext> _Logging;
 
 
-        public Guid ServerId {  get {  return _ServerId; } }
+        public Guid? ChannelId {  get {  return _ChannelId; } }
+        public Guid ServerId { get {  return _ServerId; } }
         public string LevelName { get { return _LevelName; } }
         public TStrGroup ProgenitorGroup { get { return _ProgenitorGroup; } }
 
@@ -53,9 +55,16 @@ namespace Headtrip.UeService.UnrealEngine
             _Process = new UnrealProcess(UeServiceConfiguration.ServerBinaryPath, $"{_LevelName}?ServiceSocketPort={_MessageBus.Port} -server");
         }
 
+        public void SetChannelId(Guid ChannelId)
+            => _ChannelId = ChannelId;
 
         public async ValueTask DisposeAsync()
         {
+            if (_ChannelId != null)
+                UeServiceState.ActiveServersByChannelId.TryRemove(_ChannelId.Value, out _);
+
+            UeServiceState.ActiveServersByStrGroupId.TryRemove(_ProgenitorGroup.GroupId, out _);
+            
 
             if (_MessageBus != null)
                 await _MessageBus.DisposeAsync();

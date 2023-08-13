@@ -30,19 +30,60 @@ namespace Headtrip.UeService.UnrealEngine.MessageHandlers
         private readonly IUnitOfWork<HeadtripGameServerContext> _GsUnitOfWork;
         private readonly IChannelRepository _ChannelRepository;
         private readonly IUeStrRepository _UeStrRepository;
+        private readonly IUeServiceRepository _UeServiceRepository;
 
 
         public HMsgServerStartup(
             ILogging<HeadtripGameServerContext> Logging,
             IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork,
             IChannelRepository ChannelRepository,
-            IUeStrRepository UeStrRepository) : base(MsgServerStartup.MsgType)
+            IUeStrRepository UeStrRepository,
+            IUeServiceRepository ueServiceRepository) : base(MsgServerStartup.MsgType)
         {
             _Logging = Logging;
             _GsUnitOfWork = gsUnitOfWork;
             _ChannelRepository = ChannelRepository;
             _UeStrRepository = UeStrRepository;
+            _UeServiceRepository = ueServiceRepository;
         }
+
+
+        public async Task UpdateRemainingServersCounter()
+        {
+            _GsUnitOfWork.BeginTransaction();
+
+            try
+            {
+                UeServiceState.ServiceModel.Update((m) => m.NumberOfFreeEntries--);
+                await _UeServiceRepository.Update(UeServiceState.ServiceModel.Value);
+
+                _GsUnitOfWork.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                _Logging.LogException(ex);
+                _GsUnitOfWork.RollbackTransaction();
+            }
+        }
+
+
+        private async Task DeleteChannel(Guid ChannelId)
+        {
+            _GsUnitOfWork.BeginTransaction();
+
+            try
+            {
+                await _ChannelRepository.Delete(ChannelId);
+
+                _GsUnitOfWork.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                _Logging.LogException(ex);
+                _GsUnitOfWork.RollbackTransaction();
+            }
+        }
+
 
         private async Task<RCreateChannelResult> CreateChannel(string ConnectionString, TStrGroup Group)
         {
@@ -122,21 +163,37 @@ namespace Headtrip.UeService.UnrealEngine.MessageHandlers
             // CREATE CHANNEL WITH CONNECTION STRING
             // CREATE MAPPING TO SERVER WITH CHANNEL ID
             // COMPLETE STRS
+            try
+            {
 
-            if (!UeServiceState.ActiveServersByStrGroupId.TryGetValue(_ServerInstance.ProgenitorGroup.GroupId, out var serverDescriptor))
-                throw new Exception($"Unable to lookup server descriptor for str group {_ServerInstance.ProgenitorGroup.GroupId}");
+                if (!UeServiceState.ActiveServersByStrGroupId.TryGetValue(_ServerInstance.ProgenitorGroup.GroupId, out var serverDescriptor))
+                    throw new Exception($"Unable to lookup server descriptor for str group {_ServerInstance.ProgenitorGroup.GroupId}");
 
 
-            var channelResult = await CreateChannel(Message.ConnectionString, _ServerInstance.ProgenitorGroup);
-            if (!channelResult.IsSuccessful)
-                throw new Exception($"Unable to create channel for group {_ServerInstance.ProgenitorGroup.GroupId}");
+                var channelResult = await CreateChannel(Message.ConnectionString, _ServerInstance.ProgenitorGroup);
+                if (!channelResult.IsSuccessful)
+                    throw new Exception($"Unable to create channel for group {_ServerInstance.ProgenitorGroup.GroupId}");
 
-            serverDescriptor.Channel = channelResult.Channel;
+                serverDescriptor.Channel = channelResult.Channel;
+                _ServerInstance.SetChannelId(channelResult.Channel.ChannelId);
 
-            UeServiceState.ActiveServersByStrGroupId[_ServerInstance.ProgenitorGroup.GroupId] = serverDescriptor;
-            UeServiceState.ActiveServersByChannelId[channelResult.Channel.ChannelId] = serverDescriptor;
+                UeServiceState.ActiveServersByStrGroupId[_ServerInstance.ProgenitorGroup.GroupId] = serverDescriptor;
+                UeServiceState.ActiveServersByChannelId[channelResult.Channel.ChannelId] = serverDescriptor;
 
-            await CompleteServerTransferRequests(_ServerInstance.ProgenitorGroup, serverDescriptor.Channel.ChannelId);
+                await UpdateRemainingServersCounter();
+                await CompleteServerTransferRequests(_ServerInstance.ProgenitorGroup, serverDescriptor.Channel.ChannelId);
+            }
+            catch (Exception ex)
+            {
+                _Logging.LogException(ex, $"Error while starting server for group {_ServerInstance.ProgenitorGroup.GroupId}");
+
+                if (_ServerInstance.ChannelId != null)
+                    await DeleteChannel(_ServerInstance.ChannelId.Value);
+
+                // TODO: MARK CONTRACTS AS FAILED
+
+                await _ServerInstance.DisposeAsync();
+            }
         }
 
     }

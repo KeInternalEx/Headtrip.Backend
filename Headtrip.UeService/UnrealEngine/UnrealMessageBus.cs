@@ -156,11 +156,11 @@ namespace Headtrip.UeService.UnrealEngine
         public async ValueTask DisposeAsync()
         {
             if (_Initialized)
-                UeServiceState.UnrealMessagePollers.TryRemove(this.GetHashCode(), out var dummy);
+                UeServiceState.UnrealMessagePollers.TryRemove(this.GetHashCode(), out _);
 
             if (_Socket != null)
             {
-                await _Socket.SendAsync(new MsgShutdown().SerializeCbor());
+                await SendMessage(new MsgShutdown());
                 await Task.Delay(UeServiceConfiguration.ServerShutdownGracePeriod); 
 
                 _Socket.Dispose();

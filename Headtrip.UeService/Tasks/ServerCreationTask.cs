@@ -165,24 +165,7 @@ namespace Headtrip.UeService.Tasks
             return null;
         }
        
-        private async Task DeleteChannel(Guid ChannelId)
-        {
-            _GsUnitOfWork.BeginTransaction();
-
-            try
-            {
-                await _ChannelRepository.Delete(ChannelId);
-
-                _GsUnitOfWork.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                _GsUnitOfWork.RollbackTransaction();
-            }
-        }
-
-        
+      
 
         private async Task<bool> ProcessGroup(TCreationGroup group)
         {
@@ -223,23 +206,6 @@ namespace Headtrip.UeService.Tasks
 
 
 
-        public async Task UpdateRemainingServersCounter(int NumberOfServersCreated)
-        {
-            _GsUnitOfWork.BeginTransaction();
-
-            try
-            {
-                UeServiceState.ServiceModel.Update((m) => m.NumberOfFreeEntries -= NumberOfServersCreated);
-                await _UeServiceRepository.Update(UeServiceState.ServiceModel.Value);
-
-                _GsUnitOfWork.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                _GsUnitOfWork.RollbackTransaction();
-            }
-        }
 
         protected async override Task Execute()
         {
@@ -250,7 +216,6 @@ namespace Headtrip.UeService.Tasks
                     var groupsResult = await GetGroupsPendingCreation();
                     if (groupsResult.IsSuccessful && groupsResult.Groups.Count > 0)
                     {
-                        var numberOfServersCreated = 0;
 
                         foreach (var group in groupsResult.Groups)
                         {
@@ -262,10 +227,8 @@ namespace Headtrip.UeService.Tasks
                                 continue;
                             }
 
-                            ++numberOfServersCreated;
                         }
 
-                        await UpdateRemainingServersCounter(numberOfServersCreated);
                     }
                 }
                 catch (Exception ex)
