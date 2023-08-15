@@ -1,5 +1,5 @@
-﻿using Headtrip.Objects.Account;
-using Headtrip.Objects.User;
+﻿using Headtrip.Objects.Account.Result;
+using Headtrip.Objects.User.Result;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +12,12 @@ namespace Headtrip.Services.Abstract
     {
 
 
-        UserIdDecryptionResult GetUserIdFromEmailConfirmationParameter(string parameter);
+        RUserIdDecryptionResult GetUserIdFromEmailConfirmationParameter(string parameter);
 
 
 
-        Task<UserCreationResult> CreateUser(string username, string email, string password);
-        Task<AccountCreationResult> ConfirmEmailAndCreateAccount(Guid userId);
+        Task<RUserCreationResult> CreateUser(string username, string email, string password);
+        Task<RAccountCreationResult> ConfirmEmailAndCreateAccount(Guid userId);
 
 
 

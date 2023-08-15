@@ -5,20 +5,20 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsUeServiceServerTransferRequests_FinishProcessingPendingServerTransferRequests]
+DROP PROCEDURE IF EXISTS [dbo].[gsUnrealServiceServerTransferRequests_FinishProcessingPendingServerTransferRequests]
 GO
 
-CREATE PROCEDURE [dbo].[gsUeServiceServerTransferRequests_FinishProcessingPendingServerTransferRequests]
-	@UeServiceId UniqueIdentifier
+CREATE PROCEDURE [dbo].[gsUnrealServiceServerTransferRequests_FinishProcessingPendingServerTransferRequests]
+	@UnrealServiceId UniqueIdentifier
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	-- TODO: NEED TO UPDATE GAME SESSION OBJECT FOR EACH ServerTransferRequest'S ACCOUNT TO SET THEIR CURRENT CHANNEL ID
 
-	DELETE FROM UeServiceServerTransferRequests
+	DELETE FROM UnrealServiceServerTransferRequests
 	WHERE
-		CurrentUeServiceId = @UeServiceId AND
+		CurrentUnrealServiceId = @UnrealServiceId AND
 		TargetChannelId IS NOT NULL AND
 		IsProcessing = 1
 

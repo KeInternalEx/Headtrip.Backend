@@ -1,4 +1,4 @@
-﻿using Headtrip.UeService.UnrealEngine.Interface;
+﻿using Headtrip.UnrealService.UnrealEngine.Interface;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.Management.Interface
+namespace Headtrip.UnrealService.UnrealEngine.Management.Interface
 {
     public interface IUnrealMessageBusFactory
     {

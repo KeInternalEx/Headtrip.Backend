@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using System.Diagnostics;
 
-namespace Headtrip.UeService
+namespace Headtrip.UnrealService
 {
     internal class Program
     {
@@ -54,9 +54,9 @@ namespace Headtrip.UeService
 
 
             // todo: start topshelf service
-            // todo: split on super UeService flag
-            // todo: if we're the super UeService, we run the ServerTransferRequest transformation task
-            // todo: if we're not a super UeService, then we manage the server spinning tasks
+            // todo: split on super UnrealService flag
+            // todo: if we're the super UnrealService, we run the ServerTransferRequest transformation task
+            // todo: if we're not a super UnrealService, then we manage the server spinning tasks
 
 
         }

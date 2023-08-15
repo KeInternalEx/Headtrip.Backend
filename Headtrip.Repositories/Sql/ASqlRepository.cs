@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Headtrip.Objects.Abstract.Database;
 using Headtrip.Repositories.Sql.Implementations;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;

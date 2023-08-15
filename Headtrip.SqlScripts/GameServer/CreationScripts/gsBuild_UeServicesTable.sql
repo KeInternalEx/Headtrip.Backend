@@ -1,16 +1,16 @@
 ﻿USE HeadtripGameServer;
 
-DROP TABLE IF EXISTS UeServices;
+DROP TABLE IF EXISTS UnrealServices;
 GO
-CREATE TABLE UeServices (
-	UeServiceId UNIQUEIDENTIFIER NOT NULL,
+CREATE TABLE UnrealServices (
+	UnrealServiceId UNIQUEIDENTIFIER NOT NULL,
 	Nickname NVARCHAR(MAX) NOT NULL,
 	ServerAddress NVARCHAR(MAX) NOT NULL,
 	NumberOfFreeEntries INT NOT NULL DEFAULT 0,
-	IsSuperUeService BIT NOT NULL DEFAULT 0
+	IsSuperUnrealService BIT NOT NULL DEFAULT 0
 
 
-	CONSTRAINT [PK_UeServices_UeServiceId] PRIMARY KEY NONCLUSTERED (UeServiceId)
+	CONSTRAINT [PK_UnrealServices_UnrealServiceId] PRIMARY KEY NONCLUSTERED (UnrealServiceId)
 );
 GO
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Objects.UeService
+namespace Headtrip.Objects.UnrealService
 {
     public enum EUeServerTransferRequestState : byte
     {
@@ -24,19 +24,21 @@ namespace Headtrip.Objects.UeService
     }
 
 
-    public sealed class MUeServerTransferRequest : ADatabaseObject
+    public sealed class MUnrealServerTransferRequest : ADatabaseObject
     {
         public Guid UeServerTransferRequestId { get; set; }
 
         public Guid CurrentChannelId { get; set; }
-        public Guid CurrentUeServiceId { get; set; }
+        public Guid CurrentUnrealServiceId { get; set; }
         
         public Guid? TargetChannelId { get; set; }
-        public Guid? TargetUeServiceId { get; set; }
+        public Guid? TargetUnrealServiceId { get; set; }
 
         public Guid? GroupId { get; set; }
 
         public Guid AccountId { get; set; }
+        public Guid CharacterId { get; set; }
+
         public Guid? PartyId { get; set; }
 
         public string? ZoneName { get; set; }

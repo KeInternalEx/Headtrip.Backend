@@ -5,25 +5,25 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsUeServiceServerTransferRequests_ProcessUeServiceServerTransferRequestGroup]
+DROP PROCEDURE IF EXISTS [dbo].[gsUnrealServiceServerTransferRequests_ProcessUnrealServiceServerTransferRequestGroup]
 GO
 
-CREATE PROCEDURE [dbo].[gsUeServiceServerTransferRequests_ProcessUeServiceServerTransferRequestGroup]
-	@UeServiceServerTransferRequestIds VARCHAR(MAX),
-	@UeServiceId UniqueIdentifier,
-	@UeServiceServerTransferRequestGroupId UniqueIdentifier,
+CREATE PROCEDURE [dbo].[gsUnrealServiceServerTransferRequests_ProcessUnrealServiceServerTransferRequestGroup]
+	@UnrealServiceServerTransferRequestIds VARCHAR(MAX),
+	@UnrealServiceId UniqueIdentifier,
+	@UnrealServiceServerTransferRequestGroupId UniqueIdentifier,
 	@ZoneName NVARCHAR(255)
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	
-	UPDATE UeServiceServerTransferRequests
+	UPDATE UnrealServiceServerTransferRequests
 	SET
-		TargetUeServiceId = @UeServiceId,
-		ServerTransferRequestGroupId = @UeServiceServerTransferRequestGroupId
+		TargetUnrealServiceId = @UnrealServiceId,
+		ServerTransferRequestGroupId = @UnrealServiceServerTransferRequestGroupId
 	WHERE
-		UeServiceServerTransferRequestId IN (SELECT CAST([Value] AS UniqueIdentifier) FROM STRING_SPLIT(@UeServiceServerTransferRequestIds, ','));
+		UnrealServiceServerTransferRequestId IN (SELECT CAST([Value] AS UniqueIdentifier) FROM STRING_SPLIT(@UnrealServiceServerTransferRequestIds, ','));
 
 
 END

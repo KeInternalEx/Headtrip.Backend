@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Tasks.Interface
+namespace Headtrip.UnrealService.Tasks.Interface
 {
     public interface IServiceTask
     {

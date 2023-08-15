@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 using Headtrip.GameServerContext;
 using Headtrip.UeMessages;
 using Headtrip.UeMessages.Outbound;
-using Headtrip.UeService.State;
-using Headtrip.UeService.UnrealEngine.Interface;
-using Headtrip.UeService.UnrealEngine.MessageHandlers.Interface;
+using Headtrip.UnrealService.State;
+using Headtrip.UnrealService.UnrealEngine.Interface;
+using Headtrip.UnrealService.UnrealEngine.MessageHandlers.Interface;
 using Headtrip.Utilities.Interface;
 using Microsoft.Extensions.DependencyInjection;
 using PeterO.Cbor;
 
-namespace Headtrip.UeService.UnrealEngine
+namespace Headtrip.UnrealService.UnrealEngine
 {
     public sealed class UnrealMessageBus : IUnrealMessageBus, IUnrealMessagePoller, IAsyncDisposable
     {

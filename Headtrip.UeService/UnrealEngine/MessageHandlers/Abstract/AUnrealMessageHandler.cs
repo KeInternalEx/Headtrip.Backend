@@ -1,12 +1,12 @@
 ﻿using Headtrip.UeMessages;
-using Headtrip.UeService.UnrealEngine.Interface;
+using Headtrip.UnrealService.UnrealEngine.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.MessageHandlers.Abstract
+namespace Headtrip.UnrealService.UnrealEngine.MessageHandlers.Abstract
 {
     public abstract class AUnrealMessageHandler<TMessage> where TMessage : AUnrealMessage
     {

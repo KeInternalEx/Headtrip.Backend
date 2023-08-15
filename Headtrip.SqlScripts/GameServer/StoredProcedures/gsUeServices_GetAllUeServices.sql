@@ -5,14 +5,14 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsUeServices_GetAllUeServices];
+DROP PROCEDURE IF EXISTS [dbo].[gsUnrealServices_GetAllUnrealServices];
 GO
 
-CREATE PROCEDURE [dbo].[gsUeServices_GetAllUeServices]
+CREATE PROCEDURE [dbo].[gsUnrealServices_GetAllUnrealServices]
 AS
 BEGIN
 	SET NOCOUNT ON;
-	SELECT * FROM UeServices;
+	SELECT * FROM UnrealServices;
 		
 END
 

@@ -1,9 +1,9 @@
 ﻿use HeadtripGameServer;
 
 DELETE FROM Zones;
-DELETE FROM UeServiceClaims;
-DELETE FROM UeServiceServerTransferRequests;
-DELETE FROM UeServices;
+DELETE FROM UnrealServiceClaims;
+DELETE FROM UnrealServiceServerTransferRequests;
+DELETE FROM UnrealServices;
 
 INSERT INTO Zones (
 	ZoneName,
@@ -42,12 +42,12 @@ HardPlayerCap) VALUES
 GO
 
 
-INSERT INTO UeServiceServerTransferRequests(
-	UeServiceServerTransferRequestId,
+INSERT INTO UnrealServiceServerTransferRequests(
+	UnrealServiceServerTransferRequestId,
 	CurrentChannelId,
-	CurrentUeServiceId,
+	CurrentUnrealServiceId,
 	TargetChannelId,
-	TargetUeServiceId,
+	TargetUnrealServiceId,
 	AccountId,
 	PartyId,
 	ZoneName)
@@ -63,12 +63,12 @@ newid(),
 GO 230
 
 
-INSERT INTO UeServiceServerTransferRequests(
-	UeServiceServerTransferRequestId,
+INSERT INTO UnrealServiceServerTransferRequests(
+	UnrealServiceServerTransferRequestId,
 	CurrentChannelId,
-	CurrentUeServiceId,
+	CurrentUnrealServiceId,
 	TargetChannelId,
-	TargetUeServiceId,
+	TargetUnrealServiceId,
 	AccountId,
 	PartyId,
 	ZoneName)
@@ -83,12 +83,12 @@ newid(),
 	'TestZone2');
 GO 171
 
-INSERT INTO UeServiceServerTransferRequests(
-	UeServiceServerTransferRequestId,
+INSERT INTO UnrealServiceServerTransferRequests(
+	UnrealServiceServerTransferRequestId,
 	CurrentChannelId,
-	CurrentUeServiceId,
+	CurrentUnrealServiceId,
 	TargetChannelId,
-	TargetUeServiceId,
+	TargetUnrealServiceId,
 	AccountId,
 	PartyId,
 	ZoneName)

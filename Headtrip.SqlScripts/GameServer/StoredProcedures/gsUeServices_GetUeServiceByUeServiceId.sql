@@ -5,15 +5,15 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsUeServices_GetUeServiceByUeServiceId];
+DROP PROCEDURE IF EXISTS [dbo].[gsUnrealServices_GetUnrealServiceByUnrealServiceId];
 GO
 
-CREATE PROCEDURE [dbo].[gsUeServices_GetUeServiceByUeServiceId]
-	@UeServiceId UniqueIdentifier
+CREATE PROCEDURE [dbo].[gsUnrealServices_GetUnrealServiceByUnrealServiceId]
+	@UnrealServiceId UniqueIdentifier
 AS
 BEGIN
 	SET NOCOUNT ON;
-	SELECT TOP(1) * FROM UeServices WHERE UeServiceId = @UeServiceId;
+	SELECT TOP(1) * FROM UnrealServices WHERE UnrealServiceId = @UnrealServiceId;
 		
 END
 

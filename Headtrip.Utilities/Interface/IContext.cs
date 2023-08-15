@@ -5,20 +5,14 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Headtrip.Utilities.Interface
 {
     public interface IContext<T> : IDisposable
     {
-        IDbConnection Connection { get; }
-
-        IDbTransaction? Transaction { get; }
         string SprocPrefix { get; }
-
-        void BeginTransaction();
-
-        void CommitTransaction();
-
-        void RollbackTransaction();
+        IDbConnection Connection { get; }
+        TransactionScope BeginTransaction(Transaction? AmbientTransaction = null);
     }
 }

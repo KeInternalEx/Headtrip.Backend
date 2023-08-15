@@ -3,7 +3,7 @@ using Headtrip.LoginServerContext;
 using Headtrip.Objects.User;
 using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Repositories.Sql;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
 using System.Data;

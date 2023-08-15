@@ -4,9 +4,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Headtrip.GameServerContext;
-using Headtrip.Objects.UeService;
-using Headtrip.UeService.State;
-using Headtrip.UeService.UnrealEngine.Interface;
+using Headtrip.Objects.UnrealService.Transient;
+using Headtrip.UeMessages;
+using Headtrip.UnrealService.State;
+using Headtrip.UnrealService.UnrealEngine.Interface;
 using Headtrip.Utilities;
 using Headtrip.Utilities.Interface;
 using Microsoft.AspNetCore.SignalR.Protocol;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 
-namespace Headtrip.UeService.UnrealEngine
+namespace Headtrip.UnrealService.UnrealEngine
 {
     public sealed class UnrealServerInstance : IUnrealServerInstance, IDisposable
     {
@@ -34,6 +35,8 @@ namespace Headtrip.UeService.UnrealEngine
         public Guid? ChannelId {  get {  return _ChannelId; } }
         public Guid ServerId { get {  return _ServerId; } }
         public string LevelName { get { return _LevelName; } }
+        public string ZoneName { get { return _ProgenitorGroup.ZoneName!; } }
+
         public TStrGroup ProgenitorGroup { get { return _ProgenitorGroup; } }
 
         public UnrealServerInstance(
@@ -53,9 +56,16 @@ namespace Headtrip.UeService.UnrealEngine
             _MessageBus = MessageBus;
         }
 
+        public async Task SendMessage(AUnrealMessage Message)
+        {
+            if (_MessageBus == null)
+                throw new Exception($"Message bus not yet initialized for server instance {ServerId}");
+
+            await _MessageBus.SendMessage(Message);
+        }
         public void Start()
         { 
-            _Process = new UnrealProcess(UeServiceConfiguration.ServerBinaryPath, $"{_LevelName}?ServiceSocketPort={_MessageBus.Port} -server");
+            _Process = new UnrealProcess(UnrealServiceConfiguration.ServerBinaryPath, $"{_LevelName}?ServiceSocketPort={_MessageBus.Port} -server");
         }
 
         public void SetChannelId(Guid ChannelId)

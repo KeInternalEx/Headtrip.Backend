@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Objects.User
+namespace Headtrip.Objects.User.Result
 {
     public sealed class RUserIdDecryptionResult : AServiceCallResult
     {

@@ -1,22 +1,18 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.Instance;
-using Headtrip.Objects.UeService;
-using Headtrip.Repositories.Repositories.Implementation.GameServer;
+using Headtrip.Objects.UnrealService;
+using Headtrip.Objects.UnrealService.Transient;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.UeMessages.Inbound;
-using Headtrip.UeService.Models;
-using Headtrip.UeService.Objects.Results.Abstract;
-using Headtrip.UeService.State;
-using Headtrip.UeService.UnrealEngine.MessageHandlers.Abstract;
-using Headtrip.UeService.UnrealEngine.MessageHandlers.Interface;
+using Headtrip.UnrealService.Objects.Results.Abstract;
+using Headtrip.UnrealService.Objects.UnrealServer;
+using Headtrip.UnrealService.State;
+using Headtrip.UnrealService.UnrealEngine.Management.Interface;
+using Headtrip.UnrealService.UnrealEngine.MessageHandlers.Abstract;
+using Headtrip.UnrealService.UnrealEngine.MessageHandlers.Interface;
 using Headtrip.Utilities.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.MessageHandlers
+namespace Headtrip.UnrealService.UnrealEngine.MessageHandlers
 {
     public sealed class HMsgServerStartup : AUnrealMessageHandler<MsgServerStartup>, IUnrealMessageHandler
     {
@@ -26,173 +22,124 @@ namespace Headtrip.UeService.UnrealEngine.MessageHandlers
         }
 
 
+        private readonly IContext<HeadtripGameServerContext> _Context;
         private readonly ILogging<HeadtripGameServerContext> _Logging;
-        private readonly IUnitOfWork<HeadtripGameServerContext> _GsUnitOfWork;
         private readonly IChannelRepository _ChannelRepository;
-        private readonly IUeStrRepository _UeStrRepository;
-        private readonly IUeServiceRepository _UeServiceRepository;
-
+        private readonly IUnrealStrRepository _UeStrRepository;
+        private readonly IUnrealServiceRepository _UnrealServiceRepository;
+        private readonly IUnrealServerFactory _UnrealServerFactory;
 
         public HMsgServerStartup(
+            IContext<HeadtripGameServerContext> Context,
             ILogging<HeadtripGameServerContext> Logging,
-            IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork,
             IChannelRepository ChannelRepository,
-            IUeStrRepository UeStrRepository,
-            IUeServiceRepository ueServiceRepository) : base(MsgServerStartup.MsgType)
+            IUnrealStrRepository UeStrRepository,
+            IUnrealServiceRepository UnrealServiceRepository,
+            IUnrealServerFactory UnrealServerFactory) : base(MsgServerStartup.MsgType)
         {
+            _Context = Context;
             _Logging = Logging;
-            _GsUnitOfWork = gsUnitOfWork;
             _ChannelRepository = ChannelRepository;
             _UeStrRepository = UeStrRepository;
-            _UeServiceRepository = ueServiceRepository;
+            _UnrealServiceRepository = UnrealServiceRepository;
+            _UnrealServerFactory = UnrealServerFactory;
         }
 
 
-        public async Task UpdateRemainingServersCounter()
+        private async Task UpdateRemainingServersCounter()
         {
-            _GsUnitOfWork.BeginTransaction();
-
-            try
-            {
-                UeServiceState.ServiceModel.Update((m) => m.NumberOfFreeEntries--);
-                await _UeServiceRepository.Update(UeServiceState.ServiceModel.Value);
-
-                _GsUnitOfWork.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                _GsUnitOfWork.RollbackTransaction();
-            }
+            UnrealServiceState.ServiceModel.Update((m) => m.NumberOfFreeEntries--);
+            await _UnrealServiceRepository.Update(UnrealServiceState.ServiceModel.Value);
         }
 
-
-        private async Task DeleteChannel(Guid ChannelId)
-        {
-            _GsUnitOfWork.BeginTransaction();
-
-            try
-            {
-                await _ChannelRepository.Delete(ChannelId);
-
-                _GsUnitOfWork.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                _GsUnitOfWork.RollbackTransaction();
-            }
-        }
-
-
-        private async Task<RCreateChannelResult> CreateChannel(string ConnectionString, TStrGroup Group)
+        private async Task<RCreateChannelResult> CreateChannel(string ConnectionString, TStrGroup Group, Guid ServerId)
         {
             var result = new RCreateChannelResult
             {
                 IsSuccessful = false
             };
 
-            _GsUnitOfWork.BeginTransaction();
 
-            try
+            result.Channel = await _ChannelRepository.Create(new MChannel
             {
-                result.Channel = await _ChannelRepository.Create(new MChannel
-                {
-                    UeServiceId = UeServiceState.ServiceId,
-                    ConnectionString = ConnectionString,
-                    IsAvailable = false,
-                    ZoneName = Group.ZoneName,
-                    NumberOfPlayers = Group.NumberOfPlayers
-                });
+                UnrealServiceId = UnrealServiceState.ServiceId,
+                UnrealServerId = ServerId,
+                ConnectionString = ConnectionString,
+                IsAvailable = false,
+                ZoneName = Group.ZoneName,
+                NumberOfPlayers = Group.NumberOfPlayers
+            });
 
-                result.IsSuccessful = true;
-                result.Status = $"Successfully created channel on zone {Group.ZoneName} w/ ID {result.Channel.ChannelId} for grp {Group.GroupId}";
+            result.IsSuccessful = true;
+            result.Status = $"Successfully created channel on zone {Group.ZoneName} w/ ID {result.Channel.ChannelId} for grp {Group.GroupId}";
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                return ATaskResult.BuildForException<RCreateChannelResult>(ex);
-            }
-            finally
-            {
-                _GsUnitOfWork.Finalize(result.IsSuccessful);
-            }
+            return result;
         }
 
-        private async Task<RUeServiceResult> CompleteServerTransferRequests(TStrGroup Group, Guid ChannelId)
+        private async Task<RUnrealServiceResult> CompleteServerTransferRequests(TStrGroup Group, Guid ChannelId)
         {
-            var result = new RUeServiceResult
+            var result = new RUnrealServiceResult
             {
                 IsSuccessful = false
             };
 
-            _GsUnitOfWork.BeginTransaction();
-
-            try
+            foreach (var str in Group.ServerTransferRequests)
             {
-                foreach (var str in Group.ServerTransferRequests)
-                {
-                    str.TargetChannelId = ChannelId;
-                    str.TargetUeServiceId = UeServiceState.ServiceId;
-                    str.State = EUeServerTransferRequestState.PendingAssignment;
-                }
-
-                await _UeStrRepository.BulkUpdate(Group.ServerTransferRequests);
-
-                result.IsSuccessful = true;
-                result.Status = $"Successfully updated {Group.ServerTransferRequests.Count} strs for group {Group.GroupId}";
-
-                return result;
+                str.TargetChannelId = ChannelId;
+                str.TargetUnrealServiceId = UnrealServiceState.ServiceId;
+                str.State = EUeServerTransferRequestState.PendingAssignment;
             }
-            catch (Exception ex)
-            {
-                _Logging.LogException(ex);
-                return ATaskResult.BuildForException<RUeServiceResult>(ex);
-            }
-            finally
-            {
-                _GsUnitOfWork.Finalize(result.IsSuccessful);
-            }
+
+            await _UeStrRepository.BulkUpdate(Group.ServerTransferRequests);
+
+            result.IsSuccessful = true;
+            result.Status = $"Successfully updated {Group.ServerTransferRequests.Count} strs for group {Group.GroupId}";
+
+            return result;
         }
 
-        protected async override Task HandleMessage(MsgServerStartup Message, CancellationToken Token)
+
+
+        private async Task<MChannel> CompleteServerStartup(MsgServerStartup Message)
         {
-            // FINISH CREATING THE SERVER
-            // CREATE CHANNEL WITH CONNECTION STRING
-            // CREATE MAPPING TO SERVER WITH CHANNEL ID
-            // COMPLETE STRS
-            try
+            using (var transaction = _Context.BeginTransaction())
             {
 
-                if (!UeServiceState.ActiveServersByStrGroupId.TryGetValue(_ServerInstance.ProgenitorGroup.GroupId, out var serverDescriptor))
-                    throw new Exception($"Unable to lookup server descriptor for str group {_ServerInstance.ProgenitorGroup.GroupId}");
-
-
-                var channelResult = await CreateChannel(Message.ConnectionString, _ServerInstance.ProgenitorGroup);
+                var channelResult = await CreateChannel(Message.ConnectionString, _ServerInstance.ProgenitorGroup, _ServerInstance.ServerId);
                 if (!channelResult.IsSuccessful)
                     throw new Exception($"Unable to create channel for group {_ServerInstance.ProgenitorGroup.GroupId}");
 
-                serverDescriptor.Channel = channelResult.Channel;
-                _ServerInstance.SetChannelId(channelResult.Channel.ChannelId);
 
-                UeServiceState.ActiveServersByStrGroupId[_ServerInstance.ProgenitorGroup.GroupId] = serverDescriptor;
-                UeServiceState.ActiveServersByChannelId[channelResult.Channel.ChannelId] = serverDescriptor;
-
+                await CompleteServerTransferRequests(_ServerInstance.ProgenitorGroup, channelResult.Channel.ChannelId);
                 await UpdateRemainingServersCounter();
-                await CompleteServerTransferRequests(_ServerInstance.ProgenitorGroup, serverDescriptor.Channel.ChannelId);
+
+
+                transaction.Complete();
+
+                return channelResult.Channel;
+            }
+        }
+
+
+        protected async override Task HandleMessage(MsgServerStartup Message, CancellationToken Token)
+        {
+            try
+            {
+                _UnrealServerFactory.SetChannel(_ServerInstance, await CompleteServerStartup(Message));
             }
             catch (Exception ex)
             {
                 _Logging.LogException(ex, $"Error while starting server for group {_ServerInstance.ProgenitorGroup.GroupId}");
 
-                if (_ServerInstance.ChannelId != null)
-                    await DeleteChannel(_ServerInstance.ChannelId.Value);
+                using (var transaction = _Context.BeginTransaction())
+                {
+                    foreach (var str in _ServerInstance.ProgenitorGroup.ServerTransferRequests)
+                        str.State = EUeServerTransferRequestState.FailedServerCreation;
 
-                // TODO: MARK CONTRACTS AS FAILED
+                    await _UeStrRepository.BulkUpdate(_ServerInstance.ProgenitorGroup.ServerTransferRequests);
+                }
 
-                await _ServerInstance.DisposeAsync();
+                await _UnrealServerFactory.StopInstance(_ServerInstance);
             }
         }
 

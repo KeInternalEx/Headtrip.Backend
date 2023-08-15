@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.Interface
+namespace Headtrip.UnrealService.UnrealEngine.Interface
 {
     public interface IUnrealMessageBus
     {

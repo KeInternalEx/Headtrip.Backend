@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using System.Xml;
 
 
-namespace Headtrip.Objects.UeService
+namespace Headtrip.Objects.UnrealService
 {
-    public sealed class MUeService : ADatabaseObject, IDatabaseObjectTimeStamped, IDatabaseObjectDelayedDeletable
+    public sealed class MUnrealService : ADatabaseObject, IDatabaseObjectTimeStamped, IDatabaseObjectDelayedDeletable
     {
-        public Guid UeServiceId { get; set; }
+        public Guid UnrealServiceId { get; set; }
         public string? Nickname { get; set; }
         public string? ServerAddress { get; set; }
 

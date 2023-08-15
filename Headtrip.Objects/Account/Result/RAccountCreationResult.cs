@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Headtrip.Objects.Abstract.Results;
 
-namespace Headtrip.Objects.Account
+namespace Headtrip.Objects.Account.Result
 {
     public sealed class RAccountCreationResult : AServiceCallResult
     {

@@ -1,17 +1,18 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.Instance;
-using Headtrip.Objects.UeService;
+using Headtrip.Objects.UnrealService;
+using Headtrip.Objects.UnrealService.Transient;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
-using Headtrip.UeService.Models;
-using Headtrip.UeService.Objects;
-using Headtrip.UeService.Objects.Results.Abstract;
-using Headtrip.UeService.Objects.UeServer;
-using Headtrip.UeService.State;
-using Headtrip.UeService.Tasks.Abstract;
-using Headtrip.UeService.Tasks.Interface;
-using Headtrip.UeService.UnrealEngine;
-using Headtrip.UeService.UnrealEngine.Management.Interface;
+using Headtrip.UnrealService.Models;
+using Headtrip.UnrealService.Objects;
+using Headtrip.UnrealService.Objects.Results.Abstract;
+using Headtrip.UnrealService.Objects.UeServer;
+using Headtrip.UnrealService.State;
+using Headtrip.UnrealService.Tasks.Abstract;
+using Headtrip.UnrealService.Tasks.Interface;
+using Headtrip.UnrealService.UnrealEngine;
+using Headtrip.UnrealService.UnrealEngine.Management.Interface;
 using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Tasks
+namespace Headtrip.UnrealService.Tasks
 {
     public sealed class ServerCreationTask : AServiceTask, IServerCreationTask
     {
@@ -41,12 +42,10 @@ namespace Headtrip.UeService.Tasks
 
 
 
-        private readonly IServiceProvider _ServiceProvider;
         private readonly ILogging<HeadtripGameServerContext> _Logging;
-        private readonly IUnitOfWork<HeadtripGameServerContext> _GsUnitOfWork;
 
-        private readonly IUeServiceRepository _UeServiceRepository;
-        private readonly IUeStrRepository _UeStrRepository;
+        private readonly IUnrealServiceRepository _UnrealServiceRepository;
+        private readonly IUnrealStrRepository _UeStrRepository;
         private readonly IChannelRepository _ChannelRepository;
         private readonly IZoneRepository _ZoneRepository;
 
@@ -56,20 +55,17 @@ namespace Headtrip.UeService.Tasks
         public ServerCreationTask(
             IServiceProvider ServiceProvider,
             ILogging<HeadtripGameServerContext> Logging,
-            IUnitOfWork<HeadtripGameServerContext> GsUnitOfWork,
-            IUeServiceRepository UeServiceRepository,
-            IUeStrRepository UeStrRepository,
+            IUnrealServiceRepository UnrealServiceRepository,
+            IUnrealStrRepository UeStrRepository,
             IChannelRepository ChannelRepository,
             IZoneRepository ZoneRepository,
             IUnrealServerFactory UnrealServerFactory) :
         base(
-            UeServiceState.CancellationTokenSource.Value.Token,
-            UeServiceConfiguration.ServerCreationTaskInterval)
+            UnrealServiceState.CancellationTokenSource.Value.Token,
+            UnrealServiceConfiguration.ServerCreationTaskInterval)
         {
-            _ServiceProvider = ServiceProvider;
             _Logging = Logging;
-            _GsUnitOfWork = GsUnitOfWork;
-            _UeServiceRepository = UeServiceRepository;
+            _UnrealServiceRepository = UnrealServiceRepository;
             _UeStrRepository = UeStrRepository;
             _ChannelRepository = ChannelRepository;
             _ZoneRepository = ZoneRepository;
@@ -89,9 +85,9 @@ namespace Headtrip.UeService.Tasks
 
             try
             {
-                var serviceId = UeServiceState.ServiceId;
+                var serviceId = UnrealServiceState.ServiceId;
                 var requestsPendingCreation = await _UeStrRepository.ReadWithState(EUeServerTransferRequestState.PendingServerCreation);
-                var requests = requestsPendingCreation.Where((request) => request.TargetUeServiceId == serviceId);
+                var requests = requestsPendingCreation.Where((request) => request.TargetUnrealServiceId == serviceId);
 
                 if (requests.Count() == 0)
                 {
@@ -111,8 +107,8 @@ namespace Headtrip.UeService.Tasks
                         strGroups.Add(request.GroupId.Value, new TStrGroup
                         {
                             GroupId = request.GroupId.Value,
-                            UeServiceId = serviceId,
-                            ServerTransferRequests = new List<MUeServerTransferRequest>(),
+                            UnrealServiceId = serviceId,
+                            ServerTransferRequests = new List<MUnrealServerTransferRequest>(),
                             ZoneName = request.ZoneName
                         });
                     }

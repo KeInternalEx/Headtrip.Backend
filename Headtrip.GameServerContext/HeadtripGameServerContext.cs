@@ -1,62 +1,45 @@
 ﻿using System.Data.Common;
 using System.Data;
-using Headtrip.Utilities.Abstract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
+using Headtrip.Utilities.Interface;
+using System.Transactions;
 
 namespace Headtrip.GameServerContext
 {
-    public class HeadtripGameServerContext : IContext<HeadtripGameServerContext>
+    public sealed class HeadtripGameServerContext : IContext<HeadtripGameServerContext>
     {
-        public IDbConnection Connection { get; private set; }
-        public IDbTransaction? Transaction { get; private set; }
+        private readonly SqlConnection _Connection;
+
+        public IDbConnection Connection { get { return _Connection; } }
         public string SprocPrefix { get; private set; } = "gs";
 
 
         public HeadtripGameServerContext(IConfiguration configuration)
-            => Connection = new SqlConnection(configuration.GetConnectionString("GameServerConnectionString"));
+            => _Connection = new SqlConnection(configuration.GetConnectionString("GameServerConnectionString"));
 
-        public void BeginTransaction()
+        public TransactionScope BeginTransaction(Transaction? AmbientTransaction = null)
         {
-            if (Transaction == null)
-            {
-                if (Connection.State == ConnectionState.Closed)
-                    Connection.Open();
+            var transaction = new TransactionScope();
 
-                Transaction = Connection.BeginTransaction();
-            }
+            if (_Connection.State == ConnectionState.Open)
+                _Connection.EnlistTransaction(AmbientTransaction ?? Transaction.Current);
+
+            return transaction;
         }
 
-
-        public void CommitTransaction()
-        {
-            if (Transaction != null)
-            {
-                Transaction?.Commit();
-                Transaction?.Dispose();
-                Transaction = null;
-            }
-        }
 
         public void Dispose()
         {
-            if (Transaction != null)
-                RollbackTransaction();
+            if (_Connection != null)
+            {
+                _Connection.Close();
+                _Connection.Dispose();
+            }
 
-            Connection?.Close();
-            Connection?.Dispose();
 
             GC.SuppressFinalize(this);
         }
 
-        public void RollbackTransaction()
-        {
-            if (Transaction != null)
-            {
-                Transaction?.Rollback();
-                Transaction?.Dispose();
-                Transaction = null;
-            }
-        }
     }
 }

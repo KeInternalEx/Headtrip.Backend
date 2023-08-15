@@ -3,12 +3,14 @@ using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.Account;
+using Headtrip.Objects.Account.Result;
 using Headtrip.Objects.User;
+using Headtrip.Objects.User.Result;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using Microsoft.AspNetCore.Components.Forms;
 using System;
 using System.Collections.Generic;
@@ -29,25 +31,22 @@ namespace Headtrip.Services
         private readonly IUserRepository _userRepository;
         private readonly IAccountRepository _accountRepository;
 
-        private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;
-        private readonly IUnitOfWork<HeadtripLoginServerContext> _lsUnitOfWork;
-        private readonly IUnitOfWork<HeadtripGameServerContext, HeadtripLoginServerContext> _combinedUnitOfWork;
+        private readonly IContext<HeadtripGameServerContext> _GsContext;
+        private readonly IContext<HeadtripLoginServerContext> _LsContext;
 
 
         public UserService(
             ILogging<HeadtripLoginServerContext> logging,
             IUserRepository userRepository,
             IAccountRepository accountRepository,
-            IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork,
-            IUnitOfWork<HeadtripLoginServerContext> lsUnitOfWork,
-            IUnitOfWork<HeadtripGameServerContext, HeadtripLoginServerContext> combinedUnitOfWork)
+            IContext<HeadtripGameServerContext> GsContext,
+            IContext<HeadtripLoginServerContext> LsContext)
         {
             _logging = logging;
             _userRepository = userRepository;
             _accountRepository = accountRepository;
-            _gsUnitOfWork = gsUnitOfWork;
-            _lsUnitOfWork = lsUnitOfWork;
-            _combinedUnitOfWork = combinedUnitOfWork;
+            _GsContext = GsContext;
+            _LsContext = LsContext;
         }
 
 
@@ -114,37 +113,41 @@ namespace Headtrip.Services
         {
             try
             {
-                _combinedUnitOfWork.BeginTransaction();
-                await _userRepository.ConfirmEmail(userId); // Writes to login server
-
-                var accountObject = new MAccount
+                using (var transaction = _GsContext.BeginTransaction())
                 {
-                    DateCreated = DateTime.UtcNow,
+                    using (_ = _LsContext.BeginTransaction())
+                    {
+                        await _userRepository.ConfirmEmail(userId); // Writes to login server
 
-                    IsPendingDeletion = false,
-                    IsLocked = false,
-                    IsSuspended = false,
+                        var accountObject = new MAccount
+                        {
+                            DateCreated = DateTime.UtcNow,
 
-
-                    UserId = userId,
-                    LastLoginTime = DateTime.UtcNow,
-                   // InventoryArray = "[]",
-                };
-
-                await _accountRepository.CreateAccount(accountObject); // Writes to game server
-                _combinedUnitOfWork.CommitTransaction();
+                            IsPendingDeletion = false,
+                            IsLocked = false,
+                            IsSuspended = false,
 
 
-                return new RAccountCreationResult
-                {
-                    Account = accountObject,
-                    IsSuccessful = true,
-                    Status = string.Empty
-                };
+                            UserId = userId,
+                            LastLoginTime = DateTime.UtcNow,
+                            // InventoryArray = "[]",
+                        };
+
+                        await _accountRepository.Create(accountObject); // Writes to game server
+
+                        transaction.Complete();
+
+                        return new RAccountCreationResult
+                        {
+                            Account = accountObject,
+                            IsSuccessful = true,
+                            Status = string.Empty
+                        };
+                    }
+                }
             }
             catch (Exception ex)
             {
-                _combinedUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
                 return AServiceCallResult.BuildForException<RAccountCreationResult>(ex);
@@ -161,37 +164,37 @@ namespace Headtrip.Services
                 var salt = BCrypt.Net.BCrypt.GenerateSalt();
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(password, salt, false, HashType.SHA384);
 
-                var userObject = new MUser
+                using (var transaction = _LsContext.BeginTransaction())
                 {
-                    DateCreated = DateTime.UtcNow,
-                    IsPendingDeletion = false,
-                    Email = email,
-                    Username = username,
-                    IsEmailConfirmed = false,
-                    IsPhoneConfirmed = false,
-                    Is2FAEnabled = false,
-                    PasswordHash = passwordHash,
-                };
+                    var userObject = await _userRepository.Create(new MUser
+                    {
+                        DateCreated = DateTime.UtcNow,
+                        IsPendingDeletion = false,
+                        Email = email,
+                        Username = username,
+                        IsEmailConfirmed = false,
+                        IsPhoneConfirmed = false,
+                        Is2FAEnabled = false,
+                        PasswordHash = passwordHash
+                    });
 
-                _lsUnitOfWork.BeginTransaction();
+                    transaction.Complete();
 
-                await _userRepository.CreateUser(userObject);
+                    return new RUserCreationResult
+                    {
+                        User = userObject,
+                        EmailConfirmationParameter = EncryptStringWeak(userObject.UserId.ToString()),
 
-                _lsUnitOfWork.CommitTransaction();
+                        IsSuccessful = true,
+                        Status = string.Empty
+                    };
 
-                return new RUserCreationResult
-                {
-                    User = userObject,
-                    EmailConfirmationParameter = EncryptStringWeak(userObject.UserId.ToString()),
+                }
 
-                    IsSuccessful = true,
-                    Status = string.Empty
-                };
 
             }
             catch (Exception ex)
             {
-                _lsUnitOfWork.RollbackTransaction();
                 _logging.LogException(ex);
 
                 return AServiceCallResult.BuildForException<RUserCreationResult>(ex);

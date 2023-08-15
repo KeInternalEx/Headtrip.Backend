@@ -1,4 +1,4 @@
-﻿using Headtrip.Objects.UeService;
+﻿using Headtrip.Objects.UnrealService;
 using Headtrip.Repositories.Generic;
 using System;
 using System.Collections.Generic;
@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Headtrip.Repositories.Repositories.Interface.GameServer
 {
-    public interface IUeServiceRepository : IGenericRepository<MUeService, Guid>
+    public interface IUnrealServiceRepository : IGenericRepository<MUnrealService, Guid>
     {
-        Task<MUeService> ReadByNickname(string nickname);
+        Task<MUnrealService> ReadByNickname(string nickname);
 
 
 

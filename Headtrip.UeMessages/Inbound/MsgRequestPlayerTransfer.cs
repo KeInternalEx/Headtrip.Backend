@@ -12,14 +12,20 @@ namespace Headtrip.UeMessages.Inbound
     public sealed class MsgRequestPlayerTransfer : AUnrealMessage
     {
         public static readonly string MsgType = "S.TRANSFER.PLAYER.REQUEST";
+
         public Guid AccountId { get; set; }
+        public Guid CharacterId { get; set; }
         public string ZoneName { get; set; }
 
-        public MsgRequestPlayerTransfer(string zoneName, string accountId) :
+        public MsgRequestPlayerTransfer(
+            string accountId,
+            string characterId,
+            string zoneName) :
             base(MsgType)
         {
             ZoneName = zoneName;
             AccountId = Guid.Parse(accountId);
+            CharacterId = Guid.Parse(characterId);
         }
     }
 }

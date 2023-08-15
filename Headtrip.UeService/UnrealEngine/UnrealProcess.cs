@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine
+namespace Headtrip.UnrealService.UnrealEngine
 {
     public sealed class UnrealProcess : IDisposable
     {

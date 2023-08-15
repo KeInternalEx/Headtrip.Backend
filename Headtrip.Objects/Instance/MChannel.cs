@@ -10,7 +10,8 @@ namespace Headtrip.Objects.Instance
     public sealed class MChannel : ADatabaseObject
     {
         public Guid ChannelId { get; set; }
-        public Guid UeServiceId { get; set; }
+        public Guid UnrealServiceId { get; set; }
+        public Guid UnrealServerId { get; set; }
         public string? ZoneName { get; set; }
         public string? ConnectionString { get; set; }
         public int NumberOfPlayers { get; set; }

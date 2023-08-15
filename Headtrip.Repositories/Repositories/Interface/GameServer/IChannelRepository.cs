@@ -2,7 +2,6 @@
 using Headtrip.Objects.Account;
 using Headtrip.Objects.Instance;
 using Headtrip.Repositories.Generic;
-using Headtrip.Utilities.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +12,8 @@ namespace Headtrip.Repositories.Repositories.Interface.GameServer
 {
     public interface IChannelRepository : IGenericRepository<MChannel, Guid>
     {
-
+        Task<MChannel> IncrementPlayerCount(Guid ChannelId);
+        Task<MChannel> DecrementPlayerCount(Guid ChannelId);
 
     }
 }

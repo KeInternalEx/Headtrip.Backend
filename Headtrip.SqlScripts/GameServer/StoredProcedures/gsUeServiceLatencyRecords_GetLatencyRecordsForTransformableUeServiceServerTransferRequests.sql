@@ -5,17 +5,17 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsUeServiceLatencyRecords_GetLatencyRecordsForTransformableServerTransferRequests]
+DROP PROCEDURE IF EXISTS [dbo].[gsUnrealServiceLatencyRecords_GetLatencyRecordsForTransformableServerTransferRequests]
 GO
 
-CREATE PROCEDURE [dbo].[gsUeServiceLatencyRecords_GetLatencyRecordsForTransformableServerTransferRequests]
+CREATE PROCEDURE [dbo].[gsUnrealServiceLatencyRecords_GetLatencyRecordsForTransformableServerTransferRequests]
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	SELECT * FROM UeServiceLatencyRecords
+	SELECT * FROM UnrealServiceLatencyRecords
 	WHERE
-		AccountId IN (SELECT AccountId FROM UeServiceServerTransferRequests WHERE TargetUeServiceId IS NULL);
+		AccountId IN (SELECT AccountId FROM UnrealServiceServerTransferRequests WHERE TargetUnrealServiceId IS NULL);
 
 
 END

@@ -3,7 +3,7 @@ using Headtrip.GameServerContext;
 using Headtrip.Objects.Instance;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Repositories.Sql;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +35,16 @@ namespace Headtrip.Repositories.Repositories.Implementation.GameServer
 
         public async Task<MChannel> Delete(Guid ObjectId)
             => await QuerySingleAsync<MChannel, Guid>("Channel_Delete", ObjectId);
+
+        #endregion
+
+        #region IChannelRepository
+
+        public async Task<MChannel> IncrementPlayerCount(Guid ChannelId)
+            => await QuerySingleAsync<MChannel, Guid>("Channel_IncrementPlayerCount", ChannelId);
+
+        public async Task<MChannel> DecrementPlayerCount(Guid ChannelId)
+            => await QuerySingleAsync<MChannel, Guid>("Channel_DecrementPlayerCount", ChannelId);
 
         #endregion
 

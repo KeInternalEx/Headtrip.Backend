@@ -27,11 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.WebApiInitializati
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.SqlScripts", "Headtrip.SqlScripts\Headtrip.SqlScripts.csproj", "{749B19CA-5E04-46BD-8FE8-7AB64F2F4192}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.UeService", "Headtrip.UeService\Headtrip.UeService.csproj", "{8985A962-67A5-4FEF-94C0-EF3217EA81FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.UnrealService", "Headtrip.UeService\Headtrip.UnrealService.csproj", "{8985A962-67A5-4FEF-94C0-EF3217EA81FC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Objects", "Headtrip.Objects\Headtrip.Objects.csproj", "{4604A9EE-476E-4115-8BC9-BFD89D07D2A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headtrip.UeMessages", "Headtrip.UeMessages\Headtrip.UeMessages.csproj", "{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.UnrealMessages", "Headtrip.UeMessages\Headtrip.UnrealMessages.csproj", "{DE9F3AC1-1E91-493A-B6B4-5E8C838E6AB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

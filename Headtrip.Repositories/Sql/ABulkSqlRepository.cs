@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Headtrip.Repositories.Sql
 {
@@ -38,20 +39,21 @@ namespace Headtrip.Repositories.Sql
                 throw new ArgumentException("No objects in collection");
 
             var connection = _Context.Connection as SqlConnection;
-            var transaction = _Context.Transaction as SqlTransaction;
+            var transaction = Transaction.Current;
 
-            if (
-                connection == null ||
-                transaction == null)
+            if (connection == null)
             {
                 throw new Exception($"IContext<{typeof(TContext).Name}> is not a SQL based context.");
             }
+
+            if (transaction == null)
+                throw new Exception($"No current transaction set.");
 
             var dataTable = await BulkTransform(Objects);
             if (dataTable == null)
                 return Objects;
 
-            using (var bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
+            using (var bulkCopy = new SqlBulkCopy(connection))
             {
                 bulkCopy.DestinationTableName = _TempTableName;
                 bulkCopy.BatchSize = _BatchSize.HasValue ? _BatchSize.Value : bulkCopy.BatchSize;

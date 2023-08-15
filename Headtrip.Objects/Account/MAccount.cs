@@ -12,6 +12,11 @@ namespace Headtrip.Objects.Account
     {
         public Guid AccountId { get; set; }
         public Guid UserId { get; set; }
+
+        public Guid? CurrentCharacterId { get; set; }
+        public Guid? CurrentChannelId { get; set; }
+        public Guid? CurrentPartyId { get; set; }
+
         public DateTime LastLoginTime { get; set; }
         public long TotalPlayTimeMs { get; set; }
 
@@ -25,10 +30,15 @@ namespace Headtrip.Objects.Account
 
         public bool IsPendingDeletion { get; set; }
 
-        public override void MapToRow(DataRow Row)
+        public override void MapToRow(ref DataRow Row)
         {
             Row["AccountId"] = AccountId;
             Row["UserId"] = UserId;
+
+            Row["CurrentCharacterId"] = CurrentCharacterId;
+            Row["CurrentChannelId"] = CurrentChannelId;
+            Row["CurrentPartyId"] = CurrentPartyId;
+
             Row["LastLoginTime"] = LastLoginTime;
             Row["TotalPlayTimeMs"] = TotalPlayTimeMs;
             Row["IsLocked"] = IsLocked;
@@ -43,7 +53,10 @@ namespace Headtrip.Objects.Account
         {
             Columns.Add(new DataColumn("AccountId", typeof(Guid)));
             Columns.Add(new DataColumn("UserId", typeof(Guid)));
-            Columns.Add(new DataColumn("LastLoginTime", typeof(Guid)));
+            Columns.Add(new DataColumn("CurrentCharacterId", typeof(Guid?)));
+            Columns.Add(new DataColumn("CurrentChannelId", typeof(Guid?)));
+            Columns.Add(new DataColumn("CurrentPartyId", typeof(Guid?)));
+            Columns.Add(new DataColumn("LastLoginTime", typeof(DateTime)));
             Columns.Add(new DataColumn("IsLocked", typeof(bool)));
             Columns.Add(new DataColumn("IsSuspended", typeof(bool)));
             Columns.Add(new DataColumn("DateCreated", typeof(DateTime)));

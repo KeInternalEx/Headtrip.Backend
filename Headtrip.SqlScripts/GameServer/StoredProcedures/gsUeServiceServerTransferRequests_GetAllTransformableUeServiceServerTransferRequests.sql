@@ -5,17 +5,17 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-DROP PROCEDURE IF EXISTS [dbo].[gsUeServiceServerTransferRequests_GetAllTransformableUeServiceServerTransferRequests]
+DROP PROCEDURE IF EXISTS [dbo].[gsUnrealServiceServerTransferRequests_GetAllTransformableUnrealServiceServerTransferRequests]
 GO
 
-CREATE PROCEDURE [dbo].[gsUeServiceServerTransferRequests_GetAllTransformableUeServiceServerTransferRequests]
+CREATE PROCEDURE [dbo].[gsUnrealServiceServerTransferRequests_GetAllTransformableUnrealServiceServerTransferRequests]
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	SELECT * FROM UeServiceServerTransferRequests
+	SELECT * FROM UnrealServiceServerTransferRequests
 	WHERE
-		TargetUeServiceId IS NULL AND
+		TargetUnrealServiceId IS NULL AND
 		TargetChannelId IS NULL AND
 		IsProcessing = 0;
 

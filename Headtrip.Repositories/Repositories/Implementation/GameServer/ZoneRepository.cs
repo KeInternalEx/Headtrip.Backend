@@ -4,7 +4,7 @@ using Headtrip.Objects.Instance;
 using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Repositories.Sql;
-using Headtrip.Utilities.Abstract;
+using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;

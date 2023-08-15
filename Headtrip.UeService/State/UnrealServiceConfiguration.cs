@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.State
+namespace Headtrip.UnrealService.State
 {
-    public static class UeServiceConfiguration
+    public static class UnrealServiceConfiguration
     {
 
         public static int RequestTransformationTaskInterval

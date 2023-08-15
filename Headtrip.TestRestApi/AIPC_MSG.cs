@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.IPCMessages
+namespace Headtrip.UnrealService.IPCMessages
 {
     public abstract class AIPC_MSG<T>
     {

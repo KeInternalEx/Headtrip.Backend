@@ -1,18 +1,18 @@
 ﻿USE HeadtripGameServer;
 
-DROP TABLE IF EXISTS UeServiceNumbers;
+DROP TABLE IF EXISTS UnrealServiceNumbers;
 GO
-CREATE TABLE UeServiceNumbers (
+CREATE TABLE UnrealServiceNumbers (
 	Number INT NOT NULL IDENTITY
 
-	CONSTRAINT [PK_UeServiceNumbers_Number] PRIMARY KEY CLUSTERED (Number)
+	CONSTRAINT [PK_UnrealServiceNumbers_Number] PRIMARY KEY CLUSTERED (Number)
 );
 GO
 
 DECLARE @i int = 0;
 WHILE @i < 256
 BEGIN
-INSERT INTO UeServiceNumbers DEFAULT VALUES;
+INSERT INTO UnrealServiceNumbers DEFAULT VALUES;
 SET @i = @i + 1;
 END
 

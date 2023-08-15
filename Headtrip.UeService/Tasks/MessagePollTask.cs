@@ -1,14 +1,14 @@
-﻿using Headtrip.UeService.State;
-using Headtrip.UeService.Tasks.Abstract;
-using Headtrip.UeService.Tasks.Interface;
-using Headtrip.UeService.UnrealEngine.Management.Interface;
+﻿using Headtrip.UnrealService.State;
+using Headtrip.UnrealService.Tasks.Abstract;
+using Headtrip.UnrealService.Tasks.Interface;
+using Headtrip.UnrealService.UnrealEngine.Management.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Tasks
+namespace Headtrip.UnrealService.Tasks
 {
     public sealed class MessagePollTask : AServiceTask, IMessagePollTask
     {
@@ -18,8 +18,8 @@ namespace Headtrip.UeService.Tasks
         public MessagePollTask(
             IUnrealMessageBusFactory UnrealMessageBusFactory) :
         base(
-            UeServiceState.CancellationTokenSource.Value.Token,
-            UeServiceConfiguration.RequestAssignmentTaskInterval)
+            UnrealServiceState.CancellationTokenSource.Value.Token,
+            UnrealServiceConfiguration.RequestAssignmentTaskInterval)
         {
             _UnrealMessageBusFactory = UnrealMessageBusFactory;
         }

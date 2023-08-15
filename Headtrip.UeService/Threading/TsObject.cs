@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Threading
+namespace Headtrip.UnrealService.Threading
 {
     public sealed class TsObject<TObject>
     {

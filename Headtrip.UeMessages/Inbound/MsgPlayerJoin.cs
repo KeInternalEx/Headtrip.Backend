@@ -14,12 +14,17 @@ namespace Headtrip.UeMessages.Inbound
         public static readonly string MsgType = "S.PLAYER.JOIN";
 
         public Guid AccountId { get; set; }
+        public Guid CharacterId { get; set; }
         public string PreviousZoneName { get; set; }
 
-        public MsgPlayerJoin(string accountId, string previousZoneName) :
+        public MsgPlayerJoin(
+            string accountId,
+            string characterId,
+            string previousZoneName) :
             base(MsgType)
         {
             AccountId = Guid.Parse(accountId);
+            CharacterId = Guid.Parse(characterId);
             PreviousZoneName = previousZoneName;
         }
     }

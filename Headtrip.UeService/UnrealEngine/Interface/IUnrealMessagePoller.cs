@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.Interface
+namespace Headtrip.UnrealService.UnrealEngine.Interface
 {
     public interface IUnrealMessagePoller
     {

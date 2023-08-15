@@ -1,14 +1,14 @@
 ﻿USE HeadtripGameServer;
 
-DROP TABLE IF EXISTS UeServiceServerTransferRequests;
+DROP TABLE IF EXISTS UnrealServiceServerTransferRequests;
 GO
 
-CREATE TABLE UeServiceServerTransferRequests (
-	UeServiceServerTransferRequestId UNIQUEIDENTIFIER NOT NULL,
+CREATE TABLE UnrealServiceServerTransferRequests (
+	UnrealServiceServerTransferRequestId UNIQUEIDENTIFIER NOT NULL,
 	CurrentChannelId UNIQUEIDENTIFIER NOT NULL,
-	CurrentUeServiceId UNIQUEIDENTIFIER NOT NULL,
+	CurrentUnrealServiceId UNIQUEIDENTIFIER NOT NULL,
 	TargetChannelId UNIQUEIDENTIFIER NULL,
-	TargetUeServiceId UNIQUEIDENTIFIER NULL,
+	TargetUnrealServiceId UNIQUEIDENTIFIER NULL,
 	ServerTransferRequestGroupId UNIQUEIDENTIFIER NULL,
 	AccountId UNIQUEIDENTIFIER NOT NULL,
 	PartyId UNIQUEIDENTIFIER NULL,
@@ -16,8 +16,8 @@ CREATE TABLE UeServiceServerTransferRequests (
 	CharacterLevel INT NOT NULL,
 	IsProcessing BIT NOT NULL DEFAULT 0
 
-	CONSTRAINT [PK_UeServiceServerTransferRequests_UeServiceServerTransferRequestId] PRIMARY KEY NONCLUSTERED (UeServiceServerTransferRequestId),
-	INDEX [IX_UeServiceServerTransferRequests_CurrentChannelId] NONCLUSTERED (CurrentChannelId)
+	CONSTRAINT [PK_UnrealServiceServerTransferRequests_UnrealServiceServerTransferRequestId] PRIMARY KEY NONCLUSTERED (UnrealServiceServerTransferRequestId),
+	INDEX [IX_UnrealServiceServerTransferRequests_CurrentChannelId] NONCLUSTERED (CurrentChannelId)
 );
 GO
 

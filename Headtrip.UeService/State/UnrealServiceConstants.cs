@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.State
+namespace Headtrip.UnrealService.State
 {
-    public static class UeServiceConstants
+    public static class UnrealServiceConstants
     {
         public static readonly float SERVER_LATENCY_WORST_QUALITY = 99999;
         public static readonly float SERVER_LATENCY_BAD_QUALITY = 100;

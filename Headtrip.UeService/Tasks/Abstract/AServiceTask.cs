@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Headtrip.UeService.Tasks.Interface;
-using Headtrip.UeService.Threading;
+using Headtrip.UnrealService.Tasks.Interface;
+using Headtrip.UnrealService.Threading;
 
-namespace Headtrip.UeService.Tasks.Abstract
+namespace Headtrip.UnrealService.Tasks.Abstract
 {
     public abstract class AServiceTask : IServiceTask
     {

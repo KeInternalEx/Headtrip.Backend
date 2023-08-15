@@ -1,12 +1,13 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.Abstract.Results;
-using Headtrip.Objects.UeService;
+using Headtrip.Objects.UnrealService;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
-using Headtrip.UeService.Models;
-using Headtrip.UeService.Objects;
-using Headtrip.UeService.State;
-using Headtrip.UeService.Tasks.Abstract;
-using Headtrip.UeService.Tasks.Interface;
+using Headtrip.UeMessages;
+using Headtrip.UnrealService.Objects;
+using Headtrip.UnrealService.State;
+using Headtrip.UnrealService.Tasks.Abstract;
+using Headtrip.UnrealService.Tasks.Interface;
+using Headtrip.UnrealService.UnrealEngine.Management.Interface;
 using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
@@ -14,48 +15,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.Tasks
+namespace Headtrip.UnrealService.Tasks
 {
     public sealed class RequestAssignmentTask : AServiceTask, IRequestTransformationTask
     {
 
         private readonly ILogging<HeadtripGameServerContext> _Logging;
-        private readonly IUnitOfWork<HeadtripGameServerContext> _GsUnitOfWork;
+        private readonly IContext<HeadtripGameServerContext> _Context;
 
-        private readonly IUeServiceRepository _UeServiceRepository;
-        private readonly IUeStrRepository _UeStrRepository;
-        private readonly IUeLatencyRecordRepository _UeLatencyRecordRepository;
+        private readonly IUnrealServiceRepository _UnrealServiceRepository;
+        private readonly IUnrealStrRepository _UeStrRepository;
+        private readonly IUnrealLatencyRecordRepository _UeLatencyRecordRepository;
         private readonly IChannelRepository _ChannelRepository;
         private readonly IZoneRepository _ZoneRepository;
+        private readonly IUnrealServerFactory _UnrealServerFactory;
 
         public RequestAssignmentTask(
             ILogging<HeadtripGameServerContext> Logging,
-            IUnitOfWork<HeadtripGameServerContext> GsUnitOfWork,
-            IUeServiceRepository UeServiceRepository,
-            IUeStrRepository UeStrRepository,
-            IUeLatencyRecordRepository UeLatencyRecordRepository,
+            IContext<HeadtripGameServerContext> Context,
+            IUnrealServiceRepository UnrealServiceRepository,
+            IUnrealStrRepository UeStrRepository,
+            IUnrealLatencyRecordRepository UeLatencyRecordRepository,
             IChannelRepository ChannelRepository,
-            IZoneRepository ZoneRepository) :
+            IZoneRepository ZoneRepository,
+            IUnrealServerFactory ServerFactory) :
         base(
-            UeServiceState.CancellationTokenSource.Value.Token,
-            UeServiceConfiguration.RequestAssignmentTaskInterval)
+            UnrealServiceState.CancellationTokenSource.Value.Token,
+            UnrealServiceConfiguration.RequestAssignmentTaskInterval)
         {
             _Logging = Logging;
-            _GsUnitOfWork = GsUnitOfWork;
-            _UeServiceRepository = UeServiceRepository;
+            _Context = Context;
+            _UnrealServiceRepository = UnrealServiceRepository;
             _UeStrRepository = UeStrRepository;
             _UeLatencyRecordRepository = UeLatencyRecordRepository;
             _ChannelRepository = ChannelRepository;
             _ZoneRepository = ZoneRepository;
+            _UnrealServerFactory = ServerFactory;
         }
 
     
-        private async Task<Stack<MUeServerTransferRequest>?> GetRequests()
+        private async Task<Stack<MUnrealServerTransferRequest>?> GetRequests()
         {
             try
             {
                 var strs = await _UeStrRepository.ReadWithState(EUeServerTransferRequestState.PendingAssignment);
-                return new Stack<MUeServerTransferRequest>(strs.Where((str) => str.CurrentUeServiceId == UeServiceState.ServiceId));
+                return new Stack<MUnrealServerTransferRequest>(strs.Where((str) => str.CurrentUnrealServiceId == UnrealServiceState.ServiceId));
             }
             catch (Exception ex)
             {
@@ -64,6 +68,47 @@ namespace Headtrip.UeService.Tasks
             }
         }
        
+
+        private async Task FailRequest(MUnrealServerTransferRequest request)
+        {
+            using (var transaction = _Context.BeginTransaction())
+            {
+                try
+                {
+                    request.State = EUeServerTransferRequestState.FailedAssignment;
+
+                    await _UeStrRepository.Update(request);
+
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    _Logging.LogException(ex);
+                    _Logging.LogWarning("Could not update server transfer request with failed state.");
+                }
+            }
+        }
+
+        private async Task CompleteRequest(MUnrealServerTransferRequest request)
+        {
+            using (var transaction = _Context.BeginTransaction())
+            {
+                try
+                {
+                    request.State = EUeServerTransferRequestState.Completed;
+
+                    await _UeStrRepository.Update(request);
+
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    _Logging.LogException(ex);
+                    _Logging.LogWarning("Could not update server transfer request with completed state.");
+                }
+            }
+        }
+
 
         protected async override Task Execute()
         {
@@ -77,33 +122,18 @@ namespace Headtrip.UeService.Tasks
                         while (requests.Count > 0)
                         {
                             var currentRequest = requests.Pop();
-                            
-
-                            if (!UeServiceState.ActiveServersByChannelId.TryGetValue(
-                                currentRequest.CurrentChannelId,
-                                out var server))
+                            var channel = await _ChannelRepository.Read(currentRequest.TargetChannelId!.Value);
+                            var server = _UnrealServerFactory.GetByChannelId(channel.ChannelId);
+                            if (server == null)
                             {
-                                _Logging.LogWarning($"{UeServiceState.ServiceId} doesn't own {currentRequest.CurrentChannelId}");
-                                continue;
+                                await FailRequest(currentRequest);
+                                continue;   
                             }
 
-                            var channel = await _ChannelRepository.Read(currentRequest.TargetChannelId!.Value);
-
-
-                            // server.Instance.
+                            await server.SendMessage(new MsgExecutePlayerTransfer(channel.ConnectionString, currentRequest.AccountId));
+                            await CompleteRequest(currentRequest);
                         }
                     }
-                    // DONE: get server transfer requests that have the pending assignment state AND have a CurrentUeServerid that we own
-                    // DONE: lookup channel that the request wants to go to
-                    // TODO: tell our server to connect that accountid to the requested server
-
-                    // TODO: our server will notify us that a player left, which will decrement the number of players on our channel object
-                    // TODO: the server being connected to will notify its service, which will increment its channel's number of players
-                    // TODO: it will also tell the service to update the account's current channel id
-                    // TODO: it will also tell the service to update the account's, character's current zone name
-
-
-
                 }
                 catch (Exception ex)
                 {

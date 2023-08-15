@@ -1,6 +1,6 @@
 ﻿using Headtrip.GameServerContext;
-using Headtrip.UeService.UnrealEngine.Interface;
-using Headtrip.UeService.UnrealEngine.Management.Interface;
+using Headtrip.UnrealService.UnrealEngine.Interface;
+using Headtrip.UnrealService.UnrealEngine.Management.Interface;
 using Headtrip.Utilities.Interface;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.Management
+namespace Headtrip.UnrealService.UnrealEngine.Management
 {
     public sealed class FUnrealMessageBusFactory : IUnrealMessageBusFactory, IAsyncDisposable
     {

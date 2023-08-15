@@ -1,15 +1,14 @@
 ﻿using BCrypt.Net;
-using Headtrip.Authentication.Models;
 using Headtrip.GameServerContext;
 using Headtrip.LoginServerContext;
 using Headtrip.Objects.Abstract.Results;
+using Headtrip.Objects.Authentication.Result;
 using Headtrip.Objects.User;
 using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;
-using Headtrip.Utilities.Abstract;
-
+using Headtrip.Utilities.Interface;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -30,23 +29,24 @@ namespace Headtrip.Services
         private readonly IGameSessionRepository _gameSessionRepository;
         private readonly IUserRepository _userRepository;
 
-        private readonly IUnitOfWork<HeadtripLoginServerContext> _lsUnitOfWork;
-        private readonly IUnitOfWork<HeadtripGameServerContext> _gsUnitOfWork;
+        private readonly IContext<HeadtripLoginServerContext> _LsContext;
+        private readonly IContext<HeadtripGameServerContext> _GsContext;
 
         public AuthenticationService(
             ILogging<HeadtripLoginServerContext> logging,
             IAccountRepository accountRepository,
             IGameSessionRepository gameSessionRepository,
             IUserRepository userRepository,
-            IUnitOfWork<HeadtripLoginServerContext> lsUnitOfWork,
-            IUnitOfWork<HeadtripGameServerContext> gsUnitOfWork)
+            IContext<HeadtripLoginServerContext> LsContext,
+            IContext<HeadtripGameServerContext> GsContext)
         {
             _logging = logging;
             _accountRepository = accountRepository;
             _gameSessionRepository = gameSessionRepository;
             _userRepository = userRepository;
-            _lsUnitOfWork = lsUnitOfWork;
-            _gsUnitOfWork = gsUnitOfWork;
+
+            _LsContext = LsContext;
+            _GsContext = GsContext;
         }
 
 
@@ -138,7 +138,7 @@ namespace Headtrip.Services
                 var claims = createDefaultClaims(user);
 
 
-                var account = await _accountRepository.GetAccountByUserId(user.UserId);
+                var account = await _accountRepository.ReadByUserId(user.UserId);
                 if (account == null)
                 {
                     _logging.LogWarning($"No game server account exists for user {user.Username}");
@@ -152,25 +152,28 @@ namespace Headtrip.Services
 
 
 
-                _gsUnitOfWork.BeginTransaction();
-
-                var session = await _gameSessionRepository.GetOrCreateGameSession(account.AccountId);
-                if (session == null)
+                using (var transaction = _GsContext.BeginTransaction())
                 {
-                    _logging.LogWarning($"Unable to query or create a game session ID for user {user.Username}.");
 
-                    return new RLoginResult
+                    var session = await _gameSessionRepository.GetOrCreateGameSession(account.AccountId);
+                    if (session == null)
                     {
-                        IsSuccessful = false,
-                        Status = $"Unable to query or create a game session ID for user {user.Username}."
-                    };
+                        _logging.LogWarning($"Unable to query or create a game session ID for user {user.Username}.");
+
+                        return new RLoginResult
+                        {
+                            IsSuccessful = false,
+                            Status = $"Unable to query or create a game session ID for user {user.Username}."
+                        };
+                    }
+
+                    transaction.Complete();
+
+
+                    claims.Add(new Claim("GsAccountId", account.AccountId.ToString()));
+                    claims.Add(new Claim("GsSessionId", session.GameSessionId.ToString()));
                 }
 
-                _gsUnitOfWork.CommitTransaction();
-
-
-                claims.Add(new Claim("GsAccountId", account.AccountId.ToString()));
-                claims.Add(new Claim("GsSessionId", session.GameSessionId.ToString()));
 
 
                 return CreateAuthenticationToken(claims, expiration);
@@ -186,7 +189,7 @@ namespace Headtrip.Services
         {
             try
             {
-                var user = await _userRepository.GetUserByUsername(username);
+                var user = await _userRepository.ReadByUsername(username);
                 if (user == null)
                     return new RLoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
 
@@ -205,7 +208,7 @@ namespace Headtrip.Services
         {
             try
             {
-                var user = await _userRepository.GetUserByEmail(email);
+                var user = await _userRepository.ReadByEmail(email);
                 if (user == null)
                     return new RLoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
 
@@ -225,7 +228,7 @@ namespace Headtrip.Services
         {
             try
             {
-                var user = await _userRepository.GetUserByUsername(username);
+                var user = await _userRepository.ReadByUsername(username);
                 if (user == null)
                     return new RLoginResult { IsSuccessful = false, Status = $"No user found for Username {username}" };
 
@@ -244,7 +247,7 @@ namespace Headtrip.Services
         {
             try
             {
-                var user = await _userRepository.GetUserByEmail(email);
+                var user = await _userRepository.ReadByEmail(email);
                 if (user == null)
                     return new RLoginResult { IsSuccessful = false, Status = $"No user found for Email {email}" };
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Headtrip.Objects.Abstract.Results;
 
-namespace Headtrip.Objects.User
+namespace Headtrip.Objects.User.Result
 {
     public sealed class RUserCreationResult : AServiceCallResult
     {

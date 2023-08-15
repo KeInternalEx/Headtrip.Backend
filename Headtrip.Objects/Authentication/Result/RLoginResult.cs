@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Authentication.Models
+namespace Headtrip.Objects.Authentication.Result
 {
     public sealed class RLoginResult : AServiceCallResult
     {

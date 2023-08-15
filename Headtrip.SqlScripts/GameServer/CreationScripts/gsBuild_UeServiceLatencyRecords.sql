@@ -1,15 +1,15 @@
 ﻿USE HeadtripGameServer;
 
-DROP TABLE IF EXISTS UeServiceLatencyRecords;
+DROP TABLE IF EXISTS UnrealServiceLatencyRecords;
 GO
-CREATE TABLE UeServiceLatencyRecords (
-	UeServiceId UNIQUEIDENTIFIER NOT NULL,
+CREATE TABLE UnrealServiceLatencyRecords (
+	UnrealServiceId UNIQUEIDENTIFIER NOT NULL,
 	AccountId UNIQUEIDENTIFIER NOT NULL,
 	Latency FLOAT NOT NULL DEFAULT 0
 
 
-	INDEX IX_UeServiceLatencyRecords_UeServiceId NONCLUSTERED (UeServiceId),
-	INDEX IX_UeServiceLatencyRecords_AccountId NONCLUSTERED (AccountId)
+	INDEX IX_UnrealServiceLatencyRecords_UnrealServiceId NONCLUSTERED (UnrealServiceId),
+	INDEX IX_UnrealServiceLatencyRecords_AccountId NONCLUSTERED (AccountId)
 );
 GO
 

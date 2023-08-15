@@ -1,12 +1,12 @@
 ﻿using Headtrip.Objects.Instance;
-using Headtrip.Objects.UeService;
+using Headtrip.Objects.UnrealService.Transient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.UeService.UnrealEngine.Management
+namespace Headtrip.UnrealService.UnrealEngine.Management
 {
     public enum EUnrealServerState : byte
     {

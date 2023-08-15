@@ -15,13 +15,13 @@ namespace Headtrip.Secrets
             }
         }
 
-        public static string? UnrealUeServiceApiKey
+        public static string? UnrealUnrealServiceApiKey
         {
             get
             {
-                var result = ConfigurationManager.AppSettings["UnrealUeServiceApiKey"];
+                var result = ConfigurationManager.AppSettings["UnrealUnrealServiceApiKey"];
                 if (result == null)
-                    throw new Exception("UnrealUeServiceApiKey MISSING FROM CONFIGURATION FILE");
+                    throw new Exception("UnrealUnrealServiceApiKey MISSING FROM CONFIGURATION FILE");
 
                 return result;
             }

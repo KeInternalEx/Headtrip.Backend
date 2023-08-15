@@ -1,4 +1,4 @@
-﻿using Headtrip.UeService.IPCMessages.FromUeService;
+﻿using Headtrip.UnrealService.IPCMessages.FromUnrealService;
 
 namespace Headtrip.TestRestApi
 {
