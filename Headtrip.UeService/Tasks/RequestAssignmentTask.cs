@@ -1,7 +1,7 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.UnrealService;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.UeMessages;
 using Headtrip.UnrealService.Objects;
 using Headtrip.UnrealService.State;

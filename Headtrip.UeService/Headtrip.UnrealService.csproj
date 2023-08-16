@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Headtrip.Utilities\Headtrip.Utilities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Objects\UnrealServer\" />
-  </ItemGroup>
-
 </Project>

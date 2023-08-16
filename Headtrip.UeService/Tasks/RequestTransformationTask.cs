@@ -2,7 +2,7 @@
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.UnrealService;
 using Headtrip.Objects.UnrealService.Transient;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.UnrealService.Objects;
 using Headtrip.UnrealService.Objects.Results;
 using Headtrip.UnrealService.Objects.Results.Abstract;

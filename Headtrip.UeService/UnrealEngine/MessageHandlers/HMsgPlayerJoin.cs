@@ -1,5 +1,5 @@
 ﻿using Headtrip.GameServerContext;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.UnrealService.UnrealEngine;
 using Headtrip.UnrealService.UnrealEngine.MessageHandlers;
 using Headtrip.UnrealService.UnrealEngine.MessageHandlers.Abstract;

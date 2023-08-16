@@ -6,7 +6,7 @@ using Headtrip.Objects.Account;
 using Headtrip.Objects.Account.Result;
 using Headtrip.Objects.User;
 using Headtrip.Objects.User.Result;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;

@@ -12,10 +12,11 @@ using Headtrip.Services.Abstract;
 using Headtrip.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
 using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Repositories.Repositories.Implementation.LoginServer;
-using Headtrip.Repositories.Repositories.Implementation.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
+using Headtrip.Repositories.Repositories.Implementation;
+using Headtrip.Utilities.Interface;
 
 namespace Headtrip.WebApiInitialization
 {
@@ -29,26 +30,14 @@ namespace Headtrip.WebApiInitialization
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddTransient<IContext<HeadtripGameServerContext>, HeadtripGameServerContext>();
-            services.AddTransient<IContext<HeadtripLoginServerContext>, HeadtripLoginServerContext>();
-
-            services.AddTransient<IUnitOfWork<HeadtripGameServerContext>, UnitOfWork<HeadtripGameServerContext>>();
-            services.AddTransient<IUnitOfWork<HeadtripLoginServerContext>, UnitOfWork<HeadtripLoginServerContext>>();
-
-            services.AddTransient<
-                IUnitOfWork<HeadtripLoginServerContext, HeadtripGameServerContext>,
-                UnitOfWork<HeadtripLoginServerContext, HeadtripGameServerContext>>();
-
-            services.AddTransient<
-                IUnitOfWork<HeadtripGameServerContext, HeadtripLoginServerContext>,
-                UnitOfWork<HeadtripGameServerContext, HeadtripLoginServerContext>>();
 
 
-            services.AddScoped<IUserRepository, UserRepository>();
+
+
             services.AddScoped<IAccountRepository, AccountRepository>();
 
 
             services.AddSingleton<Services.Abstract.IAuthenticationService, Services.AuthenticationService>();
-            services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IAccountService, AccountService>();
 
             services.AddSingleton<ILogging<HeadtripLoginServerContext>, Logging<HeadtripLoginServerContext>>();

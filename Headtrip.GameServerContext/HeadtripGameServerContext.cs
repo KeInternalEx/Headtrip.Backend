@@ -12,7 +12,7 @@ namespace Headtrip.GameServerContext
         private readonly SqlConnection _Connection;
 
         public IDbConnection Connection { get { return _Connection; } }
-        public string SprocPrefix { get; private set; } = "gs";
+        public string SprocPrefix { get; private set; } = string.Empty;
 
 
         public HeadtripGameServerContext(IConfiguration configuration)

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Repositories.Repositories.Interface.GameServer
+namespace Headtrip.Repositories.Repositories.Interface
 {
     public interface IChannelRepository : IGenericRepository<MChannel, Guid>
     {

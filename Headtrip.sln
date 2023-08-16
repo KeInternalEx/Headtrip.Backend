@@ -11,13 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.GameServer", "Head
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Utilities", "Headtrip.Utilities\Headtrip.Utilities.csproj", "{B72CC52D-332E-4E59-B700-19DF998D98F2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.LoginServer", "Headtrip.LoginServer\Headtrip.LoginServer.csproj", "{A53D2A07-5323-41D2-872A-24FA6423E03F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.GameServerContext", "Headtrip.GameServerContext\Headtrip.GameServerContext.csproj", "{4C694979-399A-4CB9-A005-6CA065D6C3CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.Secrets", "Headtrip.Secrets\Headtrip.Secrets.csproj", "{7D99A3BB-7D11-4942-B32F-7903A46B9173}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.LoginServerContext", "Headtrip.LoginServerContext\Headtrip.LoginServerContext.csproj", "{6FDFAFD0-01C4-450B-8BBF-319C022E456D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headtrip.TestRestApi", "Headtrip.TestRestApi\Headtrip.TestRestApi.csproj", "{8AF34007-0FD5-4E74-8C26-41DBDACBFFDD}"
 EndProject
@@ -55,10 +51,6 @@ Global
 		{B72CC52D-332E-4E59-B700-19DF998D98F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B72CC52D-332E-4E59-B700-19DF998D98F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B72CC52D-332E-4E59-B700-19DF998D98F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A53D2A07-5323-41D2-872A-24FA6423E03F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C694979-399A-4CB9-A005-6CA065D6C3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -67,10 +59,6 @@ Global
 		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D99A3BB-7D11-4942-B32F-7903A46B9173}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FDFAFD0-01C4-450B-8BBF-319C022E456D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FDFAFD0-01C4-450B-8BBF-319C022E456D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FDFAFD0-01C4-450B-8BBF-319C022E456D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FDFAFD0-01C4-450B-8BBF-319C022E456D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8AF34007-0FD5-4E74-8C26-41DBDACBFFDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8AF34007-0FD5-4E74-8C26-41DBDACBFFDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AF34007-0FD5-4E74-8C26-41DBDACBFFDD}.Release|Any CPU.ActiveCfg = Release|Any CPU

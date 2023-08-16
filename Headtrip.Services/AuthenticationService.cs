@@ -4,7 +4,7 @@ using Headtrip.LoginServerContext;
 using Headtrip.Objects.Abstract.Results;
 using Headtrip.Objects.Authentication.Result;
 using Headtrip.Objects.User;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.Repositories.Repositories.Interface.LoginServer;
 using Headtrip.Secrets;
 using Headtrip.Services.Abstract;

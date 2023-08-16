@@ -1,6 +1,6 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.Account;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.Services.Abstract;
 using Headtrip.Utilities.Interface;
 using System;

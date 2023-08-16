@@ -1,7 +1,7 @@
 ﻿using Headtrip.GameServerContext;
 using Headtrip.Objects.UnrealService;
 using Headtrip.Repositories.Generic;
-using Headtrip.Repositories.Repositories.Interface.GameServer;
+using Headtrip.Repositories.Repositories.Interface;
 using Headtrip.Repositories.Sql;
 using Headtrip.Utilities.Interface;
 using System;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Headtrip.Repositories.Repositories.Implementation.GameServer
+namespace Headtrip.Repositories.Repositories.Implementation
 {
     public sealed class UnrealStrRepository :
         ABulkSqlRepository<MUnrealServerTransferRequest, HeadtripGameServerContext>, IBulkOperations<MUnrealServerTransferRequest>, IUnrealStrRepository
