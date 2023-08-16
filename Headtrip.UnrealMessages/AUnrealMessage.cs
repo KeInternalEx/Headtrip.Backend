@@ -20,7 +20,7 @@ namespace Headtrip.UeMessages
         {
             Type = type;
             Version = version ?? Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            HTMGX = string.Empty;
+            HTMGX = "HeadTrip";
         }
 
         public string SerializeJson()
